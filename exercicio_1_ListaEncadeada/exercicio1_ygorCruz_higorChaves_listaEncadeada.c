@@ -46,6 +46,7 @@ int main(void){
         printf("Escolha uma opcao: ");
         fflush(stdin);
         opcao = getch();
+        system("CLS");
         switch(opcao){
             case '1':
                 listarNomes(&e);
