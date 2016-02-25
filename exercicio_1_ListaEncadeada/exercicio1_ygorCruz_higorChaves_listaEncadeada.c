@@ -1,20 +1,32 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 #include <conio.c>
 
 #define TAM_NOME 80
 
 typedef struct reg{
-    long cod;
+    int cod;
     char nome[TAM_NOME];
     struct reg *prox;
 } RegNome;
 
-void buscaNome(RegNome *inicioNomes, RegNome nomeEncontrar, void (*funcEncontrar)(RegNome *nomeEncontrado));
+void percorreGenericoNomes(RegNome *inicioNomes, RegNome pivo, 
+  void (*funcEncontrar)(RegNome *nomeEncontrado), int (*funcComparar)(RegNome *pivo, RegNome *iterador));
+
 void printaNomeRegistro(RegNome *nomeEncontrado);
 
-#define listarNomes(ini) buscaNome((ini), ((RegNome){-1, "", NULL}), (printaNomeRegistro))
+int comparaVerdadeiro(RegNome *pivo, RegNome *iterador);
+int comparaCodIguais(RegNome *pivo, RegNome *iterador);
+
+void leNumero(void *numero, const char *titulo, const char *tipoDado);
+void leValidaNumero(void *numero, const char *tipoDado, const char *tituloErr,
+  const char *titulo, const double faixaInicio, const double faixaFim, const void *vectorNaoRepetir,
+  const int qtdPosLidas);
+  
+#define listarNomes(ini) percorreGenericoNomes((ini), ((RegNome){-1, "", NULL}), (printaNomeRegistro), (comparaVerdadeiro))
+#define buscarNome(ini, pivo) percorreGenericoNomes((ini), (pivo), (printaNomeRegistro), (comparaCodIguais))
 
 int main(void){
     RegNome a = {-1, "", NULL}, b, c, d, e;
@@ -34,6 +46,7 @@ int main(void){
     
     short int sair = 0;
     char opcao;
+    int codPesq;
     while(!sair){
         system("CLS");
         printf("===> MENU <===\n\n");
@@ -54,7 +67,11 @@ int main(void){
                 getch();
                 break;
             case '2':
-                printf("Buscar - Ainda nao implementado\n");
+                printf("Digite o codigo a ser pesquisado: ");
+                leValidaNumero(&codPesq, "%d", "Codigo invalido", "Digite o codigo a ser pesquisado: ", 0, INT_MAX, NULL, 0);
+                buscarNome(&e, ((RegNome){codPesq, "", NULL}));
+                printf("Aperte uma tecla para voltar\n");
+                getch();
                 break;
             case '3':
                 printf("Inserir - Ainda nao implementado\n");
@@ -79,15 +96,68 @@ int main(void){
 
 //#define listarNomes(ini) buscaNome(ini, {-1, "", NULL}, NULL)
 
-void buscaNome(RegNome *inicioNomes, RegNome nomeEncontrar, void (*funcEncontrar)(RegNome *nomeEncontrado)){
+void percorreGenericoNomes(RegNome *inicioNomes, RegNome pivo, void (*funcEncontrar)(RegNome *nomeEncontrado), int (*funcComparar)(RegNome *pivo, RegNome *iterador)){
     RegNome *p = inicioNomes;
     while(p != NULL){
-        if(nomeEncontrar.cod == -1) printf("Nome: '%s' - Cod: %d\n", p->nome, p->cod);
-        else if(p->cod == nomeEncontrar.cod) funcEncontrar(p);
+        if(funcComparar(&pivo, p)) funcEncontrar(p);
         p = p->prox;
     }
 }
 
 void printaNomeRegistro(RegNome *nomeEncontrado){
-    printf("Nome: %s\n", nomeEncontrado->nome);
+    printf("Codigo: %d - Nome: %s\n", nomeEncontrado->cod, nomeEncontrado->nome);
+}
+
+int comparaVerdadeiro(RegNome *pivo, RegNome *iterador){
+    return 1;
+}
+
+int comparaCodIguais(RegNome *pivo, RegNome *iterador){
+    return pivo->cod == iterador->cod;
+}
+
+
+
+// Objetivo: ler um numero
+// Parametros: O endereco na memoria do numero, o endereco na memoria do titulo que ira
+//			  aparecer e o endereco contendo o tipo de dado que sera lido
+void leNumero(void *numero, const char *titulo, const char *tipoDado){
+	printf(titulo);
+	fflush(stdin);
+	while(!scanf(tipoDado, numero)){
+		printf("Digite um numero!\n");
+		printf(titulo);
+		fflush(stdin);
+	}
+}
+
+
+
+// Objetivo: ler e validar um numero
+// Parametros: O endereco na memoria do numero, o endereco contendo o tipo de dado que 
+//			  sera lido, o endereco na memoria do titulo que ira aparecer no erro, o 
+//			  endereco na memoria do titulo que ira aparecer, a faixa em que o numero 
+//			  tem que estar dentro (inicio e fim), se desejar verificar repetidos o 
+//			  endereco do vetor que nao pode repetir, a quantidade de posicoes q foram
+//			  utilizadas no vetor, senao setar o penultimo parametro nulo e o ultimo zero
+void leValidaNumero(void *numero, const char *tipoDado, const char *tituloErr, 
+ const char *titulo, const double faixaInicio, const double faixaFim, const void *vectorNaoRepetir, 
+ const int qtdPosLidas){
+	int posVector, cond, repetido;
+	do{
+		repetido = 0;
+		leNumero(numero, titulo, tipoDado);
+		if(strcmp(tipoDado, "%lf") == 0) cond = ((*(double *)numero) < faixaInicio || *(double *)numero > faixaFim);
+		else if(strcmp(tipoDado, "%f") == 0) cond = ((*(float *)numero) < (float)faixaInicio || *(float *)numero > (float)faixaFim);
+		else cond = ((*(int *)numero) < (int)faixaInicio || *(int *)numero > (int)faixaFim);
+		if(cond) printf("%s\n", tituloErr);
+		if(vectorNaoRepetir != NULL || qtdPosLidas != 0){
+		  for(posVector = 0; posVector < qtdPosLidas; posVector++){
+		    if(strcmp(tipoDado, "%lf") == 0) repetido = (*(double *)(vectorNaoRepetir+posVector) == *(double *)numero);
+		    else if(strcmp(tipoDado, "%f") == 0) repetido = (*(float *)(vectorNaoRepetir+posVector) == *(float *)numero);
+		    else repetido = (*(int *)(vectorNaoRepetir+posVector) == *(int *)numero);
+		    if(repetido == 1) break;
+		  }
+		}
+	}while(cond == 1 || repetido == 1);
 }
