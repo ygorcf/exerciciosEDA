@@ -1,0 +1,6 @@
+<criar uma pasta para colocar o repositorio local> "Ex.: 'ExerciciosEDA'"
+cd ExerciciosEDA
+git init
+git remote add exercsEda https://github.com/ygorcf/exerciciosEDA.git
+
+
