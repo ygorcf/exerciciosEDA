@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <stddef.h>
 #include <string.h>
 #include <limits.h>
 #include <conio.c>
@@ -12,10 +13,10 @@ typedef struct reg{
     struct reg *prox;
 } RegNome;
 
-void percorreGenericoNomes(RegNome *inicioNomes, RegNome pivo, 
-  void (*funcEncontrar)(RegNome *nomeEncontrado), int (*funcComparar)(RegNome *pivo, RegNome *iterador));
+int percorreGenericoNomes(RegNome *inicioNomes, RegNome pivo, 
+  void (*funcEncontrar)(RegNome *nomeEncontrado, RegNome *pivo), int (*funcComparar)(RegNome *pivo, RegNome *iterador));
 
-void printaNomeRegistro(RegNome *nomeEncontrado);
+int printaNomeRegistro(RegNome *nomeEncontrado, RegNome *pivo);
 
 int comparaVerdadeiro(RegNome *pivo, RegNome *iterador);
 int comparaCodIguais(RegNome *pivo, RegNome *iterador);
@@ -96,16 +97,25 @@ int main(void){
 
 //#define listarNomes(ini) buscaNome(ini, {-1, "", NULL}, NULL)
 
-void percorreGenericoNomes(RegNome *inicioNomes, RegNome pivo, void (*funcEncontrar)(RegNome *nomeEncontrado), int (*funcComparar)(RegNome *pivo, RegNome *iterador)){
+int percorreGenericoNomes(RegNome *inicioNomes, RegNome pivo, void (*funcEncontrar)(RegNome *iterador, RegNome *pivo), int (*funcComparar)(RegNome *pivo, RegNome *iterador)){
     RegNome *p = inicioNomes;
+    int alterado = 0;
     while(p != NULL){
-        if(funcComparar(&pivo, p)) funcEncontrar(p);
+        if(funcComparar(&pivo, p)) alterado = funcEncontrar(p, &pivo);
         p = p->prox;
     }
+    return alterado;
 }
 
-void printaNomeRegistro(RegNome *nomeEncontrado){
+int printaNomeRegistro(RegNome *nomeEncontrado, RegNome *pivo){
     printf("Codigo: %d - Nome: %s\n", nomeEncontrado->cod, nomeEncontrado->nome);
+    return 1;
+}
+
+int insereRegistroLista(RegNome *nomeEncontrado, RegNome *pivo){
+    pivo->prox = nomeEncontrado;
+    nomeEncontrado->prox = pivo;
+    return 1;
 }
 
 int comparaVerdadeiro(RegNome *pivo, RegNome *iterador){
@@ -114,6 +124,26 @@ int comparaVerdadeiro(RegNome *pivo, RegNome *iterador){
 
 int comparaCodIguais(RegNome *pivo, RegNome *iterador){
     return pivo->cod == iterador->cod;
+}
+
+int comparaCodMenorDiferente(RegNome *pivo, RegNome *iterador){
+    return pivo->cod < iterador->prox->cod && pivo->cod != iterador->cod;
+}
+
+
+void insere(RegNome *inicioNomes, RegNome pivo){
+    if(inicioNomes == NULL){ // Nenhum
+        inicioNomes = (RegNome *)(malloc(sizeof(RegNome)));
+        *inicioNomes = pivo;
+    }else if(inicioNomes->cod > pivo.cod){
+        pivo->prox = inicioNomes;
+        inicioNomes = pivo;
+    }else{
+        RegNome *q = inicioNomes;
+        if(!percorreGenericoNomes(q, pivo, insereRegistroLista, comparaCodMenorDiferente)){
+            
+        }
+    }
 }
 
 
