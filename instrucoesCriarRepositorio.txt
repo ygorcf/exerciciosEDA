@@ -4,3 +4,8 @@ git init
 git remote add exercsEda https://github.com/ygorcf/exerciciosEDA.git
 
 
+#########################
+## TUTORIAL DO GITHUB  ##
+#########################
+
+http://rogerdudler.github.io/git-guide/index.pt_BR.html
