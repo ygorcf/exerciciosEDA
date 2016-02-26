@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <limits.h>
+#include <assert.h>
 #include <conio.c>
 
 #define TAM_NOME 80
@@ -14,12 +15,16 @@ typedef struct reg{
 } RegNome;
 
 int percorreGenericoNomes(RegNome *inicioNomes, RegNome pivo, 
-  void (*funcEncontrar)(RegNome *nomeEncontrado, RegNome *pivo), int (*funcComparar)(RegNome *pivo, RegNome *iterador));
+  int (*funcEncontrar)(RegNome *nomeEncontrado, RegNome *pivo), int (*funcComparar)(RegNome *pivo, RegNome *iterador));
 
 int printaNomeRegistro(RegNome *nomeEncontrado, RegNome *pivo);
+int insereRegistroLista(RegNome *nomeEncontrado, RegNome *pivo);
 
 int comparaVerdadeiro(RegNome *pivo, RegNome *iterador);
 int comparaCodIguais(RegNome *pivo, RegNome *iterador);
+int comparaCodMenorDiferente(RegNome *pivo, RegNome *iterador);
+
+void insere(RegNome **inicioNomes, RegNome pivo);
 
 void leNumero(void *numero, const char *titulo, const char *tipoDado);
 void leValidaNumero(void *numero, const char *tipoDado, const char *tituloErr,
@@ -31,6 +36,7 @@ void leValidaNumero(void *numero, const char *tipoDado, const char *tituloErr,
 
 int main(void){
     RegNome a = {-1, "", NULL}, b, c, d, e;
+    RegNome *f = NULL, g;
     
     b.cod = 3;
     strcpy(b.nome, "JAO");
@@ -63,18 +69,28 @@ int main(void){
         system("CLS");
         switch(opcao){
             case '1':
-                listarNomes(&e);
+                //listarNomes(&e);
+                listarNomes(f);
+                printf("(%u)\n", f);
                 printf("Aperte uma tecla para voltar\n");
                 getch();
                 break;
             case '2':
-                printf("Digite o codigo a ser pesquisado: ");
+                //printf("Digite o codigo a ser pesquisado: ");
                 leValidaNumero(&codPesq, "%d", "Codigo invalido", "Digite o codigo a ser pesquisado: ", 0, INT_MAX, NULL, 0);
                 buscarNome(&e, ((RegNome){codPesq, "", NULL}));
                 printf("Aperte uma tecla para voltar\n");
                 getch();
                 break;
             case '3':
+                leValidaNumero(&g.cod, "%d", "Codigo invalido", "Digite o codigo a ser inserido: ", 0, INT_MAX, NULL, 0);
+                strcpy(g.nome, "Lucas");
+                //leValidaNumero(&g.cod, "%d", "Codigo invalido", "Digite o codigo a ser inserido: ", 0, INT_MAX, NULL, 0);
+                printaNomeRegistro(&g, NULL);
+                insere(&f, g);
+                printf("(%u)\n", f->prox);
+                fflush(stdin);
+                getch();
                 printf("Inserir - Ainda nao implementado\n");
                 break;
             case '4':
@@ -97,24 +113,34 @@ int main(void){
 
 //#define listarNomes(ini) buscaNome(ini, {-1, "", NULL}, NULL)
 
-int percorreGenericoNomes(RegNome *inicioNomes, RegNome pivo, void (*funcEncontrar)(RegNome *iterador, RegNome *pivo), int (*funcComparar)(RegNome *pivo, RegNome *iterador)){
+int percorreGenericoNomes(RegNome *inicioNomes, RegNome pivo, int (*funcEncontrar)(RegNome *iterador, RegNome *pivo), int (*funcComparar)(RegNome *pivo, RegNome *iterador)){
     RegNome *p = inicioNomes;
     int alterado = 0;
     while(p != NULL){
         if(funcComparar(&pivo, p)) alterado = funcEncontrar(p, &pivo);
-        p = p->prox;
+        if(alterado) p = NULL;
+        else p = p->prox;
+        printf("(%u)\n", p);
+        fflush(stdin);
+        getch();
     }
     return alterado;
 }
 
 int printaNomeRegistro(RegNome *nomeEncontrado, RegNome *pivo){
     printf("Codigo: %d - Nome: %s\n", nomeEncontrado->cod, nomeEncontrado->nome);
-    return 1;
+    return 0;
 }
 
 int insereRegistroLista(RegNome *nomeEncontrado, RegNome *pivo){
-    pivo->prox = nomeEncontrado;
-    nomeEncontrado->prox = pivo;
+    RegNome *q = NULL;
+    q = (RegNome *)(malloc(sizeof(RegNome)));
+    assert(q != NULL);
+    *q = *pivo;
+    q->prox = nomeEncontrado->prox;
+    nomeEncontrado->prox = q;
+            printf("inserido com sucesso. Inserido no meio da lista\n");
+        printf("((%u)\n", nomeEncontrado->prox);
     return 1;
 }
 
@@ -127,22 +153,38 @@ int comparaCodIguais(RegNome *pivo, RegNome *iterador){
 }
 
 int comparaCodMenorDiferente(RegNome *pivo, RegNome *iterador){
-    return pivo->cod < iterador->prox->cod && pivo->cod != iterador->cod;
+    return ((pivo->cod < iterador->prox->cod) && (pivo->cod != iterador->cod));
 }
 
 
-void insere(RegNome *inicioNomes, RegNome pivo){
-    if(inicioNomes == NULL){ // Nenhum
-        inicioNomes = (RegNome *)(malloc(sizeof(RegNome)));
-        *inicioNomes = pivo;
-    }else if(inicioNomes->cod > pivo.cod){
-        pivo->prox = inicioNomes;
-        inicioNomes = pivo;
+void insere(RegNome **inicioNomes, RegNome pivo){
+    if(*inicioNomes == NULL){ // Nenhum
+        printf("1?\n");
+        pivo.prox = NULL;
+        *inicioNomes = (RegNome *)(malloc(sizeof(RegNome)));
+        **inicioNomes = pivo;
+        printf("inserido com sucesso. Inserido o primeiro registro\n");
+        printf("(%u)\n", *inicioNomes);
+    }else if((*inicioNomes)->cod > pivo.cod){ // inicio
+        printf("2?\n");
+        RegNome *q = NULL;
+        q = (RegNome *)(malloc(sizeof(RegNome)));
+        assert(q != NULL);
+        *q = pivo;
+        q->prox = *inicioNomes;
+        *inicioNomes = q;
+        printf("inserido com sucesso. Inserido no inicio da lista\n");
+        printf("(%u)\n", *inicioNomes);
     }else{
-        RegNome *q = inicioNomes;
-        if(!percorreGenericoNomes(q, pivo, insereRegistroLista, comparaCodMenorDiferente)){
-            
+        RegNome *q = *inicioNomes;
+        printf("3?\n");
+        if(!percorreGenericoNomes(q, pivo, insereRegistroLista, comparaCodMenorDiferente)){ // meio
+            printf("ERR\n\n");
+        }else{
+            printf("inserido com sucesso. Inserido no meio da lista\n");
         }
+        printf("(((%u)\n", q->prox);
+        printf("(((%u)\n", (*inicioNomes)->prox);
     }
 }
 
@@ -152,11 +194,11 @@ void insere(RegNome *inicioNomes, RegNome pivo){
 // Parametros: O endereco na memoria do numero, o endereco na memoria do titulo que ira
 //			  aparecer e o endereco contendo o tipo de dado que sera lido
 void leNumero(void *numero, const char *titulo, const char *tipoDado){
-	printf(titulo);
+	printf("%s", titulo);
 	fflush(stdin);
 	while(!scanf(tipoDado, numero)){
 		printf("Digite um numero!\n");
-		printf(titulo);
+		printf("%s", titulo);
 		fflush(stdin);
 	}
 }
