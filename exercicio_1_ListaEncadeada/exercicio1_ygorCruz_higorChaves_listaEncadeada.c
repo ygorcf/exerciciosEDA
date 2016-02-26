@@ -14,7 +14,7 @@ typedef struct reg{
     struct reg *prox;
 } RegNome;
 
-int percorreGenericoNomes(RegNome *inicioNomes, RegNome pivo, 
+RegNome *percorreGenericoNomes(RegNome *inicioNomes, RegNome pivo, 
   int (*funcEncontrar)(RegNome *nomeEncontrado, RegNome *pivo), int (*funcComparar)(RegNome *pivo, RegNome *iterador));
 
 int printaNomeRegistro(RegNome *nomeEncontrado, RegNome *pivo);
@@ -113,18 +113,27 @@ int main(void){
 
 //#define listarNomes(ini) buscaNome(ini, {-1, "", NULL}, NULL)
 
-int percorreGenericoNomes(RegNome *inicioNomes, RegNome pivo, int (*funcEncontrar)(RegNome *iterador, RegNome *pivo), int (*funcComparar)(RegNome *pivo, RegNome *iterador)){
-    RegNome *p = inicioNomes;
+RegNome *percorreGenericoNomes(RegNome *inicioNomes, RegNome pivo, int (*funcEncontrar)(RegNome *iterador, RegNome *pivo), int (*funcComparar)(RegNome *pivo, RegNome *iterador)){
+    RegNome *p = inicioNomes, *ret = NULL;
     int alterado = 0;
     while(p != NULL){
-        if(funcComparar(&pivo, p)) alterado = funcEncontrar(p, &pivo);
-        if(alterado) p = NULL;
-        else p = p->prox;
-        printf("(%u)\n", p);
+        int aux = funcComparar(&pivo, p);
+        /*if(aux == 2) p == NULL;
+        else */if(aux == 1) alterado = funcEncontrar(p, &pivo);
+        printf("Cod %d \n", p->cod);
+        if(alterado){
+            ret = inicioNomes;
+            p = NULL;
+        }else if(!alterado && p->prox == NULL){
+            ret = p;
+            p = NULL;
+        }else if(aux != 2) p = p->prox;
+        else p = NULL;
+        printf("(%u) - Cod \n", p);
         fflush(stdin);
         getch();
     }
-    return alterado;
+    return ret;
 }
 
 int printaNomeRegistro(RegNome *nomeEncontrado, RegNome *pivo){
@@ -153,7 +162,12 @@ int comparaCodIguais(RegNome *pivo, RegNome *iterador){
 }
 
 int comparaCodMenorDiferente(RegNome *pivo, RegNome *iterador){
-    return ((pivo->cod < iterador->prox->cod) && (pivo->cod != iterador->cod));
+    int ret = 1;
+    printf("Cod %d \n", iterador->cod);
+    if(pivo->cod == iterador->cod) return 2;
+    if(iterador != NULL && iterador->prox != NULL) ret = (pivo->cod < iterador->prox->cod);// && (pivo->cod != iterador->cod);
+    printf("--> %d\n", iterador == NULL);
+    return ret;
 }
 
 
@@ -164,7 +178,7 @@ void insere(RegNome **inicioNomes, RegNome pivo){
         *inicioNomes = (RegNome *)(malloc(sizeof(RegNome)));
         **inicioNomes = pivo;
         printf("inserido com sucesso. Inserido o primeiro registro\n");
-        printf("(%u)\n", *inicioNomes);
+        printf("(%u)(%u)\n", *inicioNomes, (*inicioNomes)->prox);
     }else if((*inicioNomes)->cod > pivo.cod){ // inicio
         printf("2?\n");
         RegNome *q = NULL;
@@ -176,12 +190,21 @@ void insere(RegNome **inicioNomes, RegNome pivo){
         printf("inserido com sucesso. Inserido no inicio da lista\n");
         printf("(%u)\n", *inicioNomes);
     }else{
-        RegNome *q = *inicioNomes;
+        RegNome *q = *inicioNomes, *fimLista;
         printf("3?\n");
-        if(!percorreGenericoNomes(q, pivo, insereRegistroLista, comparaCodMenorDiferente)){ // meio
-            printf("ERR\n\n");
+        if((fimLista = percorreGenericoNomes(q, pivo, insereRegistroLista, comparaCodMenorDiferente)) == NULL ){ // meio
+            printf("Erro ao inserir\n\n"); // Nao insere
         }else{
-            printf("inserido com sucesso. Inserido no meio da lista\n");
+            if(fimLista == q) printf("inserido com sucesso. Inserido no meio da lista\n");
+            else{
+                RegNome *q = NULL;
+                q = (RegNome *)(malloc(sizeof(RegNome)));
+                assert(q != NULL);
+                *q = pivo;
+                q->prox = NULL;
+                fimLista->prox = q;
+                printf("inserido com sucesso. Inserido no fim da lista\n");
+            }
         }
         printf("(((%u)\n", q->prox);
         printf("(((%u)\n", (*inicioNomes)->prox);
