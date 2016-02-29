@@ -24,7 +24,7 @@ int comparaVerdadeiro(RegNome *pivo, RegNome *iterador);
 int comparaCodIguais(RegNome *pivo, RegNome *iterador);
 int comparaCodMenorDiferente(RegNome *pivo, RegNome *iterador);
 
-void insere(RegNome **inicioNomes, RegNome pivo);
+int insere(RegNome **inicioNomes, RegNome pivo);
 
 void leNumero(void *numero, const char *titulo, const char *tipoDado);
 void leValidaNumero(void *numero, const char *tipoDado, const char *tituloErr,
@@ -71,7 +71,6 @@ int main(void){
             case '1':
                 //listarNomes(&e);
                 listarNomes(f);
-                printf("(%u)\n", f);
                 printf("Aperte uma tecla para voltar\n");
                 getch();
                 break;
@@ -87,17 +86,32 @@ int main(void){
                 strcpy(g.nome, "Lucas");
                 //leValidaNumero(&g.cod, "%d", "Codigo invalido", "Digite o codigo a ser inserido: ", 0, INT_MAX, NULL, 0);
                 printaNomeRegistro(&g, NULL);
-                insere(&f, g);
-                printf("(%u)\n", f->prox);
+                if(insere(&f, g)) printf("Nao foi possivel inserir o registro!");
+                /*if(f != NULL)
+                percorreGenericoNomes(f, g, insereRegistroLista, comparaCodMenorDiferente);
+                else
+                insereRegistroLista(&f, &g);*/
+                printf("Aperte uma tecla para voltar\n");
                 fflush(stdin);
                 getch();
-                printf("Inserir - Ainda nao implementado\n");
+                //printf("Inserir - Ainda nao implementado\n");
                 break;
             case '4':
-                printf("Alterar - Ainda nao implementado\n");
+                leValidaNumero(&g.cod, "%d", "Codigo invalido", "Digite o codigo a ser alterado: ", 0, INT_MAX, NULL, 0);
+                strcpy(g.nome, "YGOR GATAO");
+                if(altera(&f, g)) printf("Nao foi possivel alterar o registro!");
+                printf("Aperte uma tecla para voltar\n");
+                fflush(stdin);
+                getch();
+                //printf("Alterar - Ainda nao implementado\n");
                 break;
             case '5':
-                printf("Excluir - Ainda nao implementado\n");
+                leValidaNumero(&g.cod, "%d", "Codigo invalido", "Digite o codigo a ser excluido: ", 0, INT_MAX, NULL, 0);
+                exclui(&f, g);
+                printf("Aperte uma tecla para voltar\n");
+                fflush(stdin);
+                getch();
+                //printf("Excluir - Ainda nao implementado\n");
                 break;
             case '6':
                 sair = 1;
@@ -120,7 +134,6 @@ RegNome *percorreGenericoNomes(RegNome *inicioNomes, RegNome pivo, int (*funcEnc
         int aux = funcComparar(&pivo, p);
         /*if(aux == 2) p == NULL;
         else */if(aux == 1) alterado = funcEncontrar(p, &pivo);
-        printf("Cod %d \n", p->cod);
         if(alterado){
             ret = inicioNomes;
             p = NULL;
@@ -129,9 +142,6 @@ RegNome *percorreGenericoNomes(RegNome *inicioNomes, RegNome pivo, int (*funcEnc
             p = NULL;
         }else if(aux != 2) p = p->prox;
         else p = NULL;
-        printf("(%u) - Cod \n", p);
-        fflush(stdin);
-        getch();
     }
     return ret;
 }
@@ -146,10 +156,30 @@ int insereRegistroLista(RegNome *nomeEncontrado, RegNome *pivo){
     q = (RegNome *)(malloc(sizeof(RegNome)));
     assert(q != NULL);
     *q = *pivo;
-    q->prox = nomeEncontrado->prox;
-    nomeEncontrado->prox = q;
-            printf("inserido com sucesso. Inserido no meio da lista\n");
-        printf("((%u)\n", nomeEncontrado->prox);
+    if(nomeEncontrado != NULL){
+        q->prox = nomeEncontrado->prox;
+        nomeEncontrado->prox = q;
+    }else{
+        q->prox = NULL;
+        nomeEncontrado = q;
+    }
+    return 1;
+}
+
+int alteraRegistroLista(RegNome *nomeEncontrado, RegNome *pivo){
+    if(nomeEncontrado != NULL){
+        strcpy(nomeEncontrado->nome, pivo->nome);
+    }
+    return 1;
+}
+
+int excluiRegistroLista(RegNome *nomeEncontrado, RegNome *pivo){
+    if(nomeEncontrado != NULL){
+        RegNome *q = nomeEncontrado->prox;
+        nomeEncontrado->prox = nomeEncontrado->prox->prox;
+        free(q);
+        q = NULL;
+    }
     return 1;
 }
 
@@ -161,25 +191,27 @@ int comparaCodIguais(RegNome *pivo, RegNome *iterador){
     return pivo->cod == iterador->cod;
 }
 
+int comparaCodIguaisAdiante(RegNome *pivo, RegNome *iterador){
+    int ret = 0;
+    if(iterador != NULL && iterador->prox != NULL) ret = pivo->cod == iterador->prox->cod;
+    return ret;
+}
+
 int comparaCodMenorDiferente(RegNome *pivo, RegNome *iterador){
     int ret = 1;
-    printf("Cod %d \n", iterador->cod);
     if(pivo->cod == iterador->cod) return 2;
     if(iterador != NULL && iterador->prox != NULL) ret = (pivo->cod < iterador->prox->cod);// && (pivo->cod != iterador->cod);
-    printf("--> %d\n", iterador == NULL);
     return ret;
 }
 
 
-void insere(RegNome **inicioNomes, RegNome pivo){
+int insere(RegNome **inicioNomes, RegNome pivo){
+   int ret = 0;
     if(*inicioNomes == NULL){ // Nenhum
-        printf("1?\n");
         pivo.prox = NULL;
         *inicioNomes = (RegNome *)(malloc(sizeof(RegNome)));
         **inicioNomes = pivo;
-        printf("inserido com sucesso. Inserido o primeiro registro\n");
-        printf("(%u)(%u)\n", *inicioNomes, (*inicioNomes)->prox);
-    }else if((*inicioNomes)->cod > pivo.cod){ // inicio
+    }/*else if((*inicioNomes)->cod > pivo.cod){ // inicio
         printf("2?\n");
         RegNome *q = NULL;
         q = (RegNome *)(malloc(sizeof(RegNome)));
@@ -208,7 +240,35 @@ void insere(RegNome **inicioNomes, RegNome pivo){
         }
         printf("(((%u)\n", q->prox);
         printf("(((%u)\n", (*inicioNomes)->prox);
+    }*/else{
+        RegNome *q, *res;
+        q = (RegNome *)(malloc(sizeof(RegNome)));
+        q->prox = *inicioNomes;
+        res = percorreGenericoNomes(q, pivo, insereRegistroLista, comparaCodMenorDiferente);
+        if(res->prox != NULL)
+        *inicioNomes = res->prox;
+        else
+        ret = 1;
     }
+    return ret;
+}
+
+
+int altera(RegNome **inicioNomes, RegNome pivo){
+    if(*inicioNomes != NULL){
+        RegNome *q = *inicioNomes, *res;
+        percorreGenericoNomes(q, pivo, alteraRegistroLista, comparaCodIguais);
+    }
+    return 0;
+}
+
+
+int exclui(RegNome **inicioNomes, RegNome pivo){
+    if(*inicioNomes != NULL){
+        RegNome *q = *inicioNomes, *res;
+        percorreGenericoNomes(q, pivo, excluiRegistroLista, comparaCodIguaisAdiante);
+    }
+    return 0;
 }
 
 
