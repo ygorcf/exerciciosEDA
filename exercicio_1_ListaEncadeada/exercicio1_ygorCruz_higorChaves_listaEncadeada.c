@@ -4,7 +4,7 @@
 #include <string.h>
 #include <limits.h>
 #include <assert.h>
-#include <conio.c>
+//#include <conio.c>
 
 #define TAM_NOME 80
 
@@ -30,6 +30,9 @@ void leNumero(void *numero, const char *titulo, const char *tipoDado);
 void leValidaNumero(void *numero, const char *tipoDado, const char *tituloErr,
   const char *titulo, const double faixaInicio, const double faixaFim, const void *vectorNaoRepetir,
   const int qtdPosLidas);
+void leValidaString(char *streng, const char *tituloErr, const char *titulo,
+ const int tamMaxStreng);
+void leString(char *streng, const char *titulo, const int tamMaxStreng);
   
 #define listarNomes(ini) percorreGenericoNomes((ini), ((RegNome){-1, "", NULL}), (printaNomeRegistro), (comparaVerdadeiro))
 #define buscarNome(ini, pivo) percorreGenericoNomes((ini), (pivo), (printaNomeRegistro), (comparaCodIguais))
@@ -37,19 +40,6 @@ void leValidaNumero(void *numero, const char *tipoDado, const char *tituloErr,
 int main(void){
     RegNome a = {-1, "", NULL}, b, c, d, e;
     RegNome *f = NULL, g;
-    
-    b.cod = 3;
-    strcpy(b.nome, "JAO");
-    b.prox = NULL;
-    c.cod = 2;
-    strcpy(c.nome, "OAJ");
-    c.prox = &b;
-    d.cod = 1;
-    strcpy(d.nome, "OJA");
-    d.prox = &c;
-    e.cod = 0;
-    strcpy(e.nome, "AJO");
-    e.prox = &d;
     
     short int sair = 0;
     char opcao;
@@ -77,7 +67,7 @@ int main(void){
             case '2':
                 //printf("Digite o codigo a ser pesquisado: ");
                 leValidaNumero(&codPesq, "%d", "Codigo invalido", "Digite o codigo a ser pesquisado: ", 0, INT_MAX, NULL, 0);
-                buscarNome(&e, ((RegNome){codPesq, "", NULL}));
+                buscarNome(f, ((RegNome){codPesq, "", NULL}));
                 printf("Aperte uma tecla para voltar\n");
                 getch();
                 break;
@@ -183,20 +173,28 @@ int excluiRegistroLista(RegNome *nomeEncontrado, RegNome *pivo){
     return 1;
 }
 
+// Objetivo: Retornar 1
+// Parametros: Dois registros
 int comparaVerdadeiro(RegNome *pivo, RegNome *iterador){
     return 1;
 }
 
+// Objetivo: Verificar se um registro e igual ao outro e se ele e nullo
+// Parametros: Dois registros
 int comparaCodIguais(RegNome *pivo, RegNome *iterador){
     return pivo->cod == iterador->cod;
 }
 
+// Objetivo: Verificar se um registro apos um registro e igual ao outro e se ele e nullo
+// Parametros: Dois registros
 int comparaCodIguaisAdiante(RegNome *pivo, RegNome *iterador){
     int ret = 0;
     if(iterador != NULL && iterador->prox != NULL) ret = pivo->cod == iterador->prox->cod;
     return ret;
 }
 
+// Objetivo: Verificar se um registro e menor que o outro e se ele e nullo
+// Parametros: Dois registros  
 int comparaCodMenorDiferente(RegNome *pivo, RegNome *iterador){
     int ret = 1;
     if(pivo->cod == iterador->cod) return 2;
@@ -205,42 +203,15 @@ int comparaCodMenorDiferente(RegNome *pivo, RegNome *iterador){
 }
 
 
+// Objetivo: Inserir um registro da lista de nomes
+// Parametros: O endereco do endereco do inicio da lista de nomes e o registro que sera inserido
 int insere(RegNome **inicioNomes, RegNome pivo){
    int ret = 0;
     if(*inicioNomes == NULL){ // Nenhum
         pivo.prox = NULL;
         *inicioNomes = (RegNome *)(malloc(sizeof(RegNome)));
         **inicioNomes = pivo;
-    }/*else if((*inicioNomes)->cod > pivo.cod){ // inicio
-        printf("2?\n");
-        RegNome *q = NULL;
-        q = (RegNome *)(malloc(sizeof(RegNome)));
-        assert(q != NULL);
-        *q = pivo;
-        q->prox = *inicioNomes;
-        *inicioNomes = q;
-        printf("inserido com sucesso. Inserido no inicio da lista\n");
-        printf("(%u)\n", *inicioNomes);
     }else{
-        RegNome *q = *inicioNomes, *fimLista;
-        printf("3?\n");
-        if((fimLista = percorreGenericoNomes(q, pivo, insereRegistroLista, comparaCodMenorDiferente)) == NULL ){ // meio
-            printf("Erro ao inserir\n\n"); // Nao insere
-        }else{
-            if(fimLista == q) printf("inserido com sucesso. Inserido no meio da lista\n");
-            else{
-                RegNome *q = NULL;
-                q = (RegNome *)(malloc(sizeof(RegNome)));
-                assert(q != NULL);
-                *q = pivo;
-                q->prox = NULL;
-                fimLista->prox = q;
-                printf("inserido com sucesso. Inserido no fim da lista\n");
-            }
-        }
-        printf("(((%u)\n", q->prox);
-        printf("(((%u)\n", (*inicioNomes)->prox);
-    }*/else{
         RegNome *q, *res;
         q = (RegNome *)(malloc(sizeof(RegNome)));
         q->prox = *inicioNomes;
@@ -254,6 +225,8 @@ int insere(RegNome **inicioNomes, RegNome pivo){
 }
 
 
+// Objetivo: Alterar um registro da lista de nomes
+// Parametros: O endereco do endereco do inicio da lista de nomes e o registro que sera alterado
 int altera(RegNome **inicioNomes, RegNome pivo){
     if(*inicioNomes != NULL){
         RegNome *q = *inicioNomes, *res;
@@ -263,10 +236,18 @@ int altera(RegNome **inicioNomes, RegNome pivo){
 }
 
 
+// Objetivo: Excluir um registro da lista de nomes
+// Parametros: O endereco do endereco do inicio da lista de nomes e o registro que sera excluido
 int exclui(RegNome **inicioNomes, RegNome pivo){
     if(*inicioNomes != NULL){
-        RegNome *q = *inicioNomes, *res;
+        RegNome *q = NULL, *res;
+        q = (RegNome *)(malloc(sizeof(RegNome)));
+        q->prox = *inicioNomes;
         percorreGenericoNomes(q, pivo, excluiRegistroLista, comparaCodIguaisAdiante);
+        printf("(%u)\n", q->prox);
+        printf("(%u)\n", *inicioNomes);
+        *inicioNomes = q->prox;
+        printf("(%u)\n", *inicioNomes);
     }
     return 0;
 }
@@ -315,4 +296,48 @@ void leValidaNumero(void *numero, const char *tipoDado, const char *tituloErr,
 		  }
 		}
 	}while(cond == 1 || repetido == 1);
+}
+
+
+
+// Objetivo: ler uma string
+// Parametros: Endereco onde sera guardada a string, endereco do titulo que ira aparecer
+//						e o tamanho maximo da string
+void leString(char *streng, const char *titulo, const int tamMaxStreng){
+	printf("%s", titulo);
+	fflush(stdin);
+	fgets(streng, tamMaxStreng, stdin);
+	fflush(stdin);
+}
+
+
+
+// Objetivo: ler e validar uma string
+// Parametros: Endereco onde sera guardada a string, endereco do titulo que ira aparecer
+//						no erro, endereco do titulo que ira aparecer e o tamanho maximo da string
+void leValidaString(char *streng, const char *tituloErr, const char *titulo,
+ const int tamMaxStreng){
+	short int stringEstaValida, contadorLetras, apenasCInvalidos = 0;
+	stringEstaValida = 0;
+	do{
+		leString(streng, titulo, tamMaxStreng);
+		if(streng[strlen(streng)-1] != '\n'){
+			printf("%s\n", tituloErr);
+			stringEstaValida = 0;
+		}else{
+			streng[strlen(streng)-1] = '\0';
+			stringEstaValida = 1;
+		}
+		apenasCInvalidos = 1;
+		for(contadorLetras = 0; contadorLetras < strlen(streng); contadorLetras++){
+			if(streng[contadorLetras] > 32 && streng[contadorLetras] < 127){
+				apenasCInvalidos = 0;
+				break;
+			}
+		}
+		if(apenasCInvalidos == 1){
+			stringEstaValida = 0;
+			printf("%s\n", tituloErr);
+		}
+	}while(stringEstaValida == 0);
 }
