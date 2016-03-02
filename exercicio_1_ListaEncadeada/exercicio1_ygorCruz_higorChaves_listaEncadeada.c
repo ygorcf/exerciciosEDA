@@ -4,7 +4,7 @@
 #include <string.h>
 #include <limits.h>
 #include <assert.h>
-#include <conio.c>
+//#include <conio.c>
 
 #define TAM_NOME 80
 
@@ -41,19 +41,6 @@ int main(void){
     RegNome a = {-1, "", NULL}, b, c, d, e;
     RegNome *f = NULL, g;
     
-    b.cod = 3;
-    strcpy(b.nome, "JAO");
-    b.prox = NULL;
-    c.cod = 2;
-    strcpy(c.nome, "OAJ");
-    c.prox = &b;
-    d.cod = 1;
-    strcpy(d.nome, "OJA");
-    d.prox = &c;
-    e.cod = 0;
-    strcpy(e.nome, "AJO");
-    e.prox = &d;
-    
     short int sair = 0;
     char opcao;
     int codPesq;
@@ -80,7 +67,7 @@ int main(void){
             case '2':
                 //printf("Digite o codigo a ser pesquisado: ");
                 leValidaNumero(&codPesq, "%d", "Codigo invalido", "Digite o codigo a ser pesquisado: ", 0, INT_MAX, NULL, 0);
-                buscarNome(&e, ((RegNome){codPesq, "", NULL}));
+                buscarNome(f, ((RegNome){codPesq, "", NULL}));
                 printf("Aperte uma tecla para voltar\n");
                 getch();
                 break;
@@ -253,8 +240,14 @@ int altera(RegNome **inicioNomes, RegNome pivo){
 // Parametros: O endereco do endereco do inicio da lista de nomes e o registro que sera excluido
 int exclui(RegNome **inicioNomes, RegNome pivo){
     if(*inicioNomes != NULL){
-        RegNome *q = *inicioNomes, *res;
+        RegNome *q = NULL, *res;
+        q = (RegNome *)(malloc(sizeof(RegNome)));
+        q->prox = *inicioNomes;
         percorreGenericoNomes(q, pivo, excluiRegistroLista, comparaCodIguaisAdiante);
+        printf("(%u)\n", q->prox);
+        printf("(%u)\n", *inicioNomes);
+        *inicioNomes = q->prox;
+        printf("(%u)\n", *inicioNomes);
     }
     return 0;
 }
