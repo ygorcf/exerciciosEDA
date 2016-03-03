@@ -43,7 +43,7 @@ int main(void){
     
     short int sair = 0;
     char opcao;
-    int codPesq;
+    int codPesq, res = -1;
     while(!sair){
         system("CLS");
         printf("+----------------------------------------+\n");
@@ -86,10 +86,12 @@ int main(void){
                 //leValidaNumero(&g.cod, "%d", "Codigo invalido", "Digite o codigo a ser inserido: ", 0, INT_MAX, NULL, 0);
                 //printaNomeRegistro(&g, NULL);
                 //if(insere(&f)) printf("|  Nao foi possivel inserir o registro!  |\n");
-                int a = insere(&f);
-                if(insere(&f)) printf("|  Nao foi possivel inserir o registro!  |\n");
-                else printf("|     Registro inserido com sucesso!     |\n");
+                res = insere(&f);
+                if(res != 4){
+                  if(res) printf("|  Nao foi possivel inserir o registro!  |\n");
+                  else printf("|     Registro inserido com sucesso!     |\n");
 		        printf("+----------------------------------------+\n");
+                }
                 /*if(f != NULL)
                 percorreGenericoNomes(f, g, insereRegistroLista, comparaCodMenorDiferente);
                 else
@@ -97,17 +99,32 @@ int main(void){
                 //printf("Inserir - Ainda nao implementado\n");
                 break;
             case '4':
-                leValidaNumero(&g.cod, "%d", "Codigo invalido", "Digite o codigo a ser alterado: ", 0, INT_MAX, NULL, 0);
+    		        printf("+----------------------------------------+\n");
+    		        printf("|                 ALTERAR                |\n");
+    		        printf("+----------------------------------------+\n");
+                res = altera(&f);
+                if(res != 3){
+  	              if(res) printf("|  Nao foi possivel alterar o registro!  |\n");
+  	              else printf("|     Registro alterado com sucesso!     |\n");
+		        printf("+----------------------------------------+\n");
+	              }
+                /*leValidaNumero(&g.cod, "%d", "Codigo invalido", "Digite o codigo a ser alterado: ", 0, INT_MAX, NULL, 0);
                 if(busca(f, ((RegNome){g.cod, "", NULL}))){
 	                leValidaString(g.nome, "Nome Invalido!", "Digite o novo nome: ", TAM_NOME);
 	                if(!altera(&f)) printf("Nao foi possivel alterar o registro!");
-				}
+				}*/
                 //printf("Alterar - Ainda nao implementado\n");
                 break;
             case '5':
-                leValidaNumero(&g.cod, "%d", "Codigo invalido", "Digite o codigo a ser excluido: ", 0, INT_MAX, NULL, 0);
-                exclui(&f, g);
-                //printf("Excluir - Ainda nao implementado\n");
+    		        printf("+----------------------------------------+\n");
+    		        printf("|                 EXCLUIR                |\n");
+    		        printf("+----------------------------------------+\n");
+                res = exclui(&f);
+                if(res != 3){
+  	              if(res) printf("|  Nao foi possivel excluir o registro!  |\n");
+  	              else printf("|     Registro excluido com sucesso!     |\n");
+		        printf("+----------------------------------------+\n");
+	              }
                 break;
             case '6':
                 sair = 1;
@@ -308,6 +325,7 @@ int insere(RegNome **inicioNomes){
                 ret = 3;
             }
         }
+    else ret = 4;
     return ret;
 }
 
@@ -318,37 +336,43 @@ int altera(RegNome **inicioNomes){
 	int ret = 0;
     
     if(*inicioNomes != NULL){
-        RegNome *q = NULL, *res = NULL;
-        RegNome pivo;
-    
-        leValidaNumero(&pivo.cod, "%d", "Codigo invalido", "Digite o codigo a ser alterado: ", 0, INT_MAX, NULL, 0);
-        
-        q = (RegNome *)(malloc(sizeof(RegNome)));
-        if(q != NULL){
-            q->prox = inicioNomes;
-            res = percorreGenericoNomes(q, pivo, descreveProxRegistro, comparaCodIguaisAdiante);
+      RegNome *q = NULL, *res = NULL;
+      RegNome pivo;
+  
+      leValidaNumero(&pivo.cod, "%d", "| Codigo invalido", "| Digite o codigo a ser alterado: ", 0, INT_MAX, NULL, 0);
+          printf("+----------------------------------------+\n");
+      
+      q = (RegNome *)(malloc(sizeof(RegNome)));
+      if(q != NULL){
+        q->prox = *inicioNomes;
+        if(percorreGenericoNomes(q, pivo, descreveProxRegistro, comparaCodIguaisAdiante)){
+          printf("|       Nenhum registro Encontrado       |\n");
+          printf("+----------------------------------------+\n");
+          ret = 1;
         }else{
+          leValidaString(pivo.nome, "Nome Invalido!", "Digite o novo nome: ", TAM_NOME);
+          printf("+----------------------------------------+\n");
+          printaNomeRegistro(&pivo, NULL);
+          printf("|        Os dados estao corretos?        |\n");
+          printf("|  [S] - Sim / outra tecla - para voltar |\n");
+          printf("+----------------------------------------+\n");
+          if(toupper(getch()) == 'S'){
+            if(percorreGenericoNomes(q->prox, pivo, alteraRegistroLista, comparaCodIguais)){
+      		    printf("|       Ocorreu um erro ao alterar       |\n");
+      		    printf("+----------------------------------------+\n");
+      		    ret = 2;
+      		  }else *inicioNomes = q->prox;
+          }else ret = 3;
+        }
+      }else{
 		    printf("|       Ocorreu um erro na memoria       |\n");
 		    printf("+----------------------------------------+\n");
-        }
-        res = percorreGenericoNomes(q, pivo, descreveProxRegistro, comparaCodIguaisAdiante);   
-    /*if(busca(f)){
-        leValidaString(pivo.nome, "Nome Invalido!", "Digite o novo nome: ", TAM_NOME);
-        if(!altera(&f)) printf("Nao foi possivel alterar o registro!");
-    }*/
-    leValidaNumero(&pivo.cod, "%d", "Codigo invalido", "Digite o codigo a ser inserido: ", 0, INT_MAX, NULL, 0);
-    leValidaString(pivo.nome, "Nome Invalido!", "Digite o nome: ", TAM_NOME);
-	printf("+----------------------------------------+\n");
-    printaNomeRegistro(&pivo, NULL);
-    printf("|        Os dados estao corretos?        |\n");
-    printf("|  [S] - Sim / outra tecla - para voltar |\n");
-	printf("+----------------------------------------+\n");
-    if(toupper(getch()) == 'S')
-        res = percorreGenericoNomes(q, pivo, alteraRegistroLista, comparaCodIguais);
-        if(res != NULL && res->prox != NULL){
-	        *inicioNomes = res->prox;
-	        ret = 1;
-	    }
+      	ret = 4;
+      }
+    }else{
+	    printf("|       Ocorreu um erro na memoria       |\n");
+	    printf("+----------------------------------------+\n");
+      ret = 5;
     }
     return ret;
 }
@@ -356,22 +380,45 @@ int altera(RegNome **inicioNomes){
 
 // Objetivo: Excluir um registro da lista de nomes
 // Parametros: O endereco do endereco do inicio da lista de nomes e o registro que sera excluido
-int exclui(RegNome **inicioNomes, RegNome pivo){
+int exclui(RegNome **inicioNomes){
 	int ret = 0;
     if(*inicioNomes != NULL){
-        RegNome *q = NULL, *res = NULL;
+        RegNome *q = NULL;
+        RegNome pivo;
+        
+        leValidaNumero(&pivo.cod, "%d", "Codigo invalido", "Digite o codigo a ser excluido: ", 0, INT_MAX, NULL, 0);
+        printf("+----------------------------------------+\n");
         q = (RegNome *)(malloc(sizeof(RegNome)));
-        q->prox = *inicioNomes;
-        res = percorreGenericoNomes(q, pivo, excluiRegistroLista, comparaCodIguaisAdiante);
-        printf("(%u)\n", q->prox);
-        printf("(%u)\n", *inicioNomes);
-        if(res != NULL){
-        	*inicioNomes = res->prox;
-        	ret = 1;
-		}
-        free(q);
-        q = NULL;
-        printf("(%u)\n", *inicioNomes);
+        if(q != NULL){
+          q->prox = *inicioNomes;
+          if(percorreGenericoNomes(q, pivo, descreveProxRegistro, comparaCodIguaisAdiante)){
+            printf("|       Nenhum registro Encontrado       |\n");
+            printf("+----------------------------------------+\n");
+            ret = 1;
+          }else{
+            printf("|        Os dados estao corretos?        |\n");
+            printf("|  [S] - Sim / outra tecla - para voltar |\n");
+            printf("+----------------------------------------+\n");
+            if(toupper(getch()) == 'S')
+                if(percorreGenericoNomes(q, pivo, excluiRegistroLista, comparaCodIguaisAdiante)){
+            	    printf("|       Ocorreu um erro ao excluir       |\n");
+            	    printf("+----------------------------------------+\n");
+                  ret = 2;
+                }else{
+                	*inicioNomes = q->prox;
+      		      }
+            else ret = 3;
+          }
+          free(q);
+        }else{
+  	    printf("|       Ocorreu um erro na memoria       |\n");
+  	    printf("+----------------------------------------+\n");
+        ret = 4;
+      }
+    }else{
+	    printf("|       Ocorreu um erro na memoria       |\n");
+	    printf("+----------------------------------------+\n");
+      ret = 5;
     }
     return ret;
 }
