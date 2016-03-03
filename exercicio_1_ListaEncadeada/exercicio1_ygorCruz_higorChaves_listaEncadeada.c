@@ -7,6 +7,7 @@
 //#include <conio.c>
 
 #define TAM_NOME 80
+#define TAM_TABELA 40
 
 typedef struct reg{
     int cod;
@@ -18,21 +19,30 @@ int percorreGenericoNomes(RegNome *inicioNomes, RegNome pivo,
   int (*funcEncontrar)(RegNome *nomeEncontrado, RegNome *pivo), int (*funcComparar)(RegNome *pivo, RegNome *iterador));
 
 int printaNomeRegistro(RegNome *nomeEncontrado, RegNome *pivo);
+int descreveProxRegistro(RegNome *nomeEncontrado, RegNome *pivo);
 int insereRegistroLista(RegNome *nomeEncontrado, RegNome *pivo);
+int alteraRegistroLista(RegNome *nomeEncontrado, RegNome *pivo);
+int excluiRegistroLista(RegNome *nomeEncontrado, RegNome *pivo);
 
 int comparaVerdadeiro(RegNome *pivo, RegNome *iterador);
 int comparaCodIguais(RegNome *pivo, RegNome *iterador);
+int comparaCodIguaisAdiante(RegNome *pivo, RegNome *iterador);
 int comparaCodMenorDiferente(RegNome *pivo, RegNome *iterador);
 
+int lista(RegNome *inicioNomes);
+int busca(RegNome *inicioNomes);
 int insere(RegNome **inicioNomes);
+int altera(RegNome **inicioNomes);
+int exclui(RegNome **inicioNomes);
 
+int printCab(char *titulo);
 void leNumero(void *numero, const char *titulo, const char *tipoDado);
 void leValidaNumero(void *numero, const char *tipoDado, const char *tituloErr,
   const char *titulo, const double faixaInicio, const double faixaFim, const void *vectorNaoRepetir,
   const int qtdPosLidas);
+void leString(char *streng, const char *titulo, const int tamMaxStreng);
 void leValidaString(char *streng, const char *tituloErr, const char *titulo,
  const int tamMaxStreng);
-void leString(char *streng, const char *titulo, const int tamMaxStreng);
   
 //#define listarNomes(ini) percorreGenericoNomes((ini), ((RegNome){-1, "", NULL}), (printaNomeRegistro), (comparaVerdadeiro))
 #define buscarNome(ini, pivo) percorreGenericoNomes((ini), (pivo), (printaNomeRegistro), (comparaCodIguais))
@@ -64,24 +74,27 @@ int main(void){
         switch(opcao){
             case '1':
                 //listarNomes(&e);
-		        printf("+----------------------------------------+\n");
-		        printf("|                 LISTAR                 |\n");
-		        printf("+----------------------------------------+\n");
+//		        printf("+----------------------------------------+\n");
+//		        printf("|                 LISTAR                 |\n");
+//		        printf("+----------------------------------------+\n");
+				printCab("LISTAR");
                 lista(f);
                 break;
             case '2':
-		        printf("+----------------------------------------+\n");
-		        printf("|                 BUSCAR                 |\n");
-		        printf("+----------------------------------------+\n");
+//		        printf("+----------------------------------------+\n");
+//		        printf("|                 BUSCAR                 |\n");
+//		        printf("+----------------------------------------+\n");
+				printCab("BUSCAR");
                 if(busca(f)){
                     printf("|  Nao foi possivel buscar um registro!  |\n");
 		            printf("+----------------------------------------+\n");
                 } 
                 break;
             case '3':
-		        printf("+----------------------------------------+\n");
-		        printf("|                 INSERIR                |\n");
-		        printf("+----------------------------------------+\n");
+//		        printf("+----------------------------------------+\n");
+//		        printf("|                 INSERIR                |\n");
+//		        printf("+----------------------------------------+\n");
+				printCab("INSERIR");
                 //leValidaNumero(&g.cod, "%d", "Codigo invalido", "Digite o codigo a ser inserido: ", 0, INT_MAX, NULL, 0);
                 //printaNomeRegistro(&g, NULL);
                 //if(insere(&f)) printf("|  Nao foi possivel inserir o registro!  |\n");
@@ -98,9 +111,10 @@ int main(void){
                 //printf("Inserir - Ainda nao implementado\n");
                 break;
             case '4':
-    		        printf("+----------------------------------------+\n");
-    		        printf("|                 ALTERAR                |\n");
-    		        printf("+----------------------------------------+\n");
+//    		        printf("+----------------------------------------+\n");
+//    		        printf("|                 ALTERAR                |\n");
+//    		        printf("+----------------------------------------+\n");
+				printCab("ALTERAR");
                 res = altera(&f);
                 if(res != 3){
   	              if(res) printf("|  Nao foi possivel alterar o registro!  |\n");
@@ -115,9 +129,10 @@ int main(void){
                 //printf("Alterar - Ainda nao implementado\n");
                 break;
             case '5':
-    		        printf("+----------------------------------------+\n");
-    		        printf("|                 EXCLUIR                |\n");
-    		        printf("+----------------------------------------+\n");
+//    		        printf("+----------------------------------------+\n");
+//    		        printf("|                 EXCLUIR                |\n");
+//    		        printf("+----------------------------------------+\n");
+				printCab("EXCLUIR");
                 res = exclui(&f);
                 if(res != 3){
   	              if(res) printf("|  Nao foi possivel excluir o registro!  |\n");
@@ -129,7 +144,7 @@ int main(void){
                 sair = 1;
                 break;
             default:
-                printf("Opcao invalida!!\n");        
+                printCab("Opcao invalida!!");        
         }
         if(!sair){
 		    printf("|      Aperte uma tecla para voltar      |\n");
@@ -422,6 +437,19 @@ int exclui(RegNome **inicioNomes){
     return ret;
 }
 
+
+//
+int printCab(char *titulo){
+	int a = (TAM_TABELA - strlen(titulo)) / 2;
+	int b = TAM_TABELA - strlen(titulo) - a;
+	int i;
+	printf("+----------------------------------------+\n|");
+	for(i = 0; i < b; i++) printf(" ");
+	printf("%s", titulo);
+	for(i = 0; i < a; i++) printf(" ");
+	printf("|\n+----------------------------------------+\n");
+	return 1;
+}
 
 
 // Objetivo: ler um numero
