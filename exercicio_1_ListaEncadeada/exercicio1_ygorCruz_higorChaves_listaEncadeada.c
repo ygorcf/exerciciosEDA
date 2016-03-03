@@ -70,8 +70,6 @@ int main(void){
                 lista(f);
                 break;
             case '2':
-                //printf("Digite o codigo a ser pesquisado: ");
-<<<<<<< HEAD
 		        printf("+----------------------------------------+\n");
 		        printf("|                 BUSCAR                 |\n");
 		        printf("+----------------------------------------+\n");
@@ -79,12 +77,6 @@ int main(void){
                     printf("|  Nao foi possivel buscar um registro!  |\n");
 		            printf("+----------------------------------------+\n");
                 } 
-=======
-                leValidaNumero(&codPesq, "%d", "Codigo invalido", "Digite o codigo a ser pesquisado: ", 0, INT_MAX, NULL, 0);
-                buscarNome(f, ((RegNome){codPesq, "", NULL}));
-                printf("Aperte uma tecla para voltar\n");
-                getch();
->>>>>>> master
                 break;
             case '3':
 		        printf("+----------------------------------------+\n");
@@ -248,7 +240,6 @@ int comparaCodMenorDiferente(RegNome *pivo, RegNome *iterador){
 }
 
 
-<<<<<<< HEAD
 //
 int lista(RegNome *inicioNomes){
 	if(inicioNomes != NULL){
@@ -334,40 +325,15 @@ int insere(RegNome **inicioNomes){
             }
         }
     else ret = 4;
-=======
-// Objetivo: Inserir um registro da lista de nomes
-// Parametros: O endereco do endereco do inicio da lista de nomes e o registro que sera inserido
-int insere(RegNome **inicioNomes, RegNome pivo){
-   int ret = 0;
-    if(*inicioNomes == NULL){ // Nenhum
-        pivo.prox = NULL;
-        *inicioNomes = (RegNome *)(malloc(sizeof(RegNome)));
-        **inicioNomes = pivo;
-    }else{
-        RegNome *q, *res;
-        q = (RegNome *)(malloc(sizeof(RegNome)));
-        q->prox = *inicioNomes;
-        res = percorreGenericoNomes(q, pivo, insereRegistroLista, comparaCodMenorDiferente);
-        if(res->prox != NULL)
-        *inicioNomes = res->prox;
-        else
-        ret = 1;
-    }
->>>>>>> master
     return ret;
 }
 
 
 // Objetivo: Alterar um registro da lista de nomes
-<<<<<<< HEAD
 // Parametros: O endereco do endereco do inicio da lista de nomes
 int altera(RegNome **inicioNomes){
 	int ret = 0;
     
-=======
-// Parametros: O endereco do endereco do inicio da lista de nomes e o registro que sera alterado
-int altera(RegNome **inicioNomes, RegNome pivo){
->>>>>>> master
     if(*inicioNomes != NULL){
       RegNome *q = NULL, *res = NULL;
       RegNome pivo;
@@ -413,7 +379,6 @@ int altera(RegNome **inicioNomes, RegNome pivo){
 
 // Objetivo: Excluir um registro da lista de nomes
 // Parametros: O endereco do endereco do inicio da lista de nomes e o registro que sera excluido
-<<<<<<< HEAD
 int exclui(RegNome **inicioNomes){
 	int ret = 0;
     if(*inicioNomes != NULL){
@@ -453,18 +418,6 @@ int exclui(RegNome **inicioNomes){
 	    printf("|       Ocorreu um erro na memoria       |\n");
 	    printf("+----------------------------------------+\n");
       ret = 5;
-=======
-int exclui(RegNome **inicioNomes, RegNome pivo){
-    if(*inicioNomes != NULL){
-        RegNome *q = NULL, *res;
-        q = (RegNome *)(malloc(sizeof(RegNome)));
-        q->prox = *inicioNomes;
-        percorreGenericoNomes(q, pivo, excluiRegistroLista, comparaCodIguaisAdiante);
-        printf("(%u)\n", q->prox);
-        printf("(%u)\n", *inicioNomes);
-        *inicioNomes = q->prox;
-        printf("(%u)\n", *inicioNomes);
->>>>>>> master
     }
     return ret;
 }
