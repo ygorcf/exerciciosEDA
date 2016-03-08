@@ -15,7 +15,7 @@ typedef struct reg{
     struct reg *prox;
 } RegNome;
 
-int percorreGenericoNomes(RegNome *inicioNomes, RegNome pivo, 
+int percorreGenericoNomes(RegNome *inicioNomes, RegNome *pivo, 
   int (*funcEncontrar)(RegNome *nomeEncontrado, RegNome *pivo), int (*funcComparar)(RegNome *pivo, RegNome *iterador));
 
 int printaNomeRegistro(RegNome *nomeEncontrado, RegNome *pivo);
@@ -36,6 +36,7 @@ int altera(RegNome **inicioNomes);
 int exclui(RegNome **inicioNomes);
 
 int printCab(char *titulo);
+int printCabInfer(char *titulo);
 void leNumero(void *numero, const char *titulo, const char *tipoDado);
 void leValidaNumero(void *numero, const char *tipoDado, const char *tituloErr,
   const char *titulo, const double faixaInicio, const double faixaFim, const void *vectorNaoRepetir,
@@ -50,6 +51,7 @@ void leValidaString(char *streng, const char *tituloErr, const char *titulo,
 int main(void){
     RegNome a = {-1, "", NULL}, b, c, d, e;
     RegNome *f = NULL, g;
+    RegNome *backup = NULL;
     
     short int sair = 0;
     char opcao;
@@ -64,7 +66,9 @@ int main(void){
         printf("| 3 |   Inserir                          |\n");
         printf("| 4 |   Alterar                          |\n");
         printf("| 5 |   Excluir                          |\n");
-        printf("| 6 |   Sair                             |\n");
+        printf("| 6 |   Criar Backup                     |\n");
+        printf("| 7 |   Recuperar Backup                 |\n");
+        printf("| 8 |   Sair                             |\n");
         printf("+---+------------------------------------+\n");
         printf("|            Escolha uma opcao           |\n");
         printf("+----------------------------------------+\n");
@@ -78,7 +82,8 @@ int main(void){
 //		        printf("|                 LISTAR                 |\n");
 //		        printf("+----------------------------------------+\n");
 				printCab("LISTAR");
-                lista(f);
+				if(getch() == 'b') lista(backup);
+        else lista(f);
                 break;
             case '2':
 //		        printf("+----------------------------------------+\n");
@@ -141,14 +146,39 @@ int main(void){
 	              }
                 break;
             case '6':
+//    		        printf("+----------------------------------------+\n");
+//    		        printf("|                 EXCLUIR                |\n");
+//    		        printf("+----------------------------------------+\n");
+				printCab("CRIAR BACKUP");
+				
+                res = criaBackup(f, &backup);
+                /*
+                  TODO arrumar resposta para o usuario
+                */
+                if(res != 3){
+  	              if(res) printf("|  Nao foi possivel excluir o registro!  |\n");
+  	              else printf("|     Registro excluido com sucesso!     |\n");
+		        printf("+----------------------------------------+\n");
+	              }
+                break;
+            case '7':
+//    		        printf("+----------------------------------------+\n");
+//    		        printf("|                 EXCLUIR                |\n");
+//    		        printf("+----------------------------------------+\n");
+				printCab("RECUPERAR BACKUP");
+				
+                recuperaBackup(&f, &backup);
+                break;
+            case '8':
                 sair = 1;
                 break;
             default:
                 printCab("Opcao invalida!!");        
         }
         if(!sair){
-		    printf("|      Aperte uma tecla para voltar      |\n");
-		    printf("+----------------------------------------+\n");
+          printCabInfer("Aperte uma tecla para voltar");
+		    /*printf("|      Aperte uma tecla para voltar      |\n");
+		    printf("+----------------------------------------+\n");*/
 	        fflush(stdin);
 	        getch();
 		}
@@ -159,13 +189,12 @@ int main(void){
 
 //#define listarNomes(ini) buscaNome(ini, {-1, "", NULL}, NULL)
 
-int percorreGenericoNomes(RegNome *inicioNomes, RegNome pivo, int (*funcEncontrar)(RegNome *iterador, RegNome *pivo), int (*funcComparar)(RegNome *pivo, RegNome *iterador)){
+int percorreGenericoNomes(RegNome *inicioNomes, RegNome *pivo, int (*funcEncontrar)(RegNome *iterador, RegNome *pivo), int (*funcComparar)(RegNome *pivo, RegNome *iterador)){
     RegNome *p = inicioNomes;
     int alterado = 0, ret = 0;
     while(p != NULL){
-        int aux = funcComparar(&pivo, p);
-        /*if(aux == 2) p == NULL;
-        else */if(aux == 1) alterado = funcEncontrar(p, &pivo);
+        int aux = funcComparar(pivo, p);
+        if(aux == 1) alterado = funcEncontrar(p, pivo);
         if(alterado) p = NULL;
         else if(p->prox == NULL){
             ret = 1;
@@ -225,6 +254,17 @@ int excluiRegistroLista(RegNome *nomeEncontrado, RegNome *pivo){
     return 1;
 }
 
+int copiaRegistroLista(RegNome *nomeEncontrado, RegNome *pivo){
+    *nomeEncontrado = *pivo;
+    printf("%d - %d\n", nomeEncontrado->cod, pivo->cod);
+    if(pivo->prox != NULL){
+      nomeEncontrado->prox = (RegNome *)(malloc(sizeof(RegNome)));
+      if(pivo->prox == NULL) return 2;
+      *pivo = *pivo->prox;
+    }
+    return 0;
+}
+
 // Objetivo: Retornar 1
 // Parametros: Dois registros
 int comparaVerdadeiro(RegNome *pivo, RegNome *iterador){
@@ -259,7 +299,7 @@ int comparaCodMenorDiferente(RegNome *pivo, RegNome *iterador){
 int lista(RegNome *inicioNomes){
 	if(inicioNomes != NULL){
 		RegNome *res = NULL;
-		percorreGenericoNomes(inicioNomes, (RegNome){-1, "", NULL}, printaNomeRegistro, comparaVerdadeiro);
+		percorreGenericoNomes(inicioNomes, NULL, printaNomeRegistro, comparaVerdadeiro);
 	}else{
 	    printf("|       Nenhum registro Cadastrado       |\n");
 	    printf("+----------------------------------------+\n");
@@ -281,7 +321,7 @@ int busca(RegNome *inicioNomes){
         q = (RegNome *)(malloc(sizeof(RegNome)));
         if(q != NULL){
             q->prox = inicioNomes;
-            if(percorreGenericoNomes(q, pivo, descreveProxRegistro, comparaCodIguaisAdiante)){
+            if(percorreGenericoNomes(q, &pivo, descreveProxRegistro, comparaCodIguaisAdiante)){
                 printf("|       Nenhum registro Encontrado       |\n");
                 printf("+----------------------------------------+\n");
             }
@@ -326,7 +366,7 @@ int insere(RegNome **inicioNomes){
             q = (RegNome *)(malloc(sizeof(RegNome)));
             if(q != NULL){
                 q->prox = *inicioNomes;                
-                if(!percorreGenericoNomes(q, pivo, insereRegistroLista, comparaCodMenorDiferente)){
+                if(!percorreGenericoNomes(q, &pivo, insereRegistroLista, comparaCodMenorDiferente)){
                     *inicioNomes = q->prox;
                 }else{
                     printf("|       Ocorreu um erro ao inserir       |\n");
@@ -359,7 +399,7 @@ int altera(RegNome **inicioNomes){
       q = (RegNome *)(malloc(sizeof(RegNome)));
       if(q != NULL){
         q->prox = *inicioNomes;
-        if(percorreGenericoNomes(q, pivo, descreveProxRegistro, comparaCodIguaisAdiante)){
+        if(percorreGenericoNomes(q, &pivo, descreveProxRegistro, comparaCodIguaisAdiante)){
           printf("|       Nenhum registro Encontrado       |\n");
           printf("+----------------------------------------+\n");
           ret = 1;
@@ -371,7 +411,7 @@ int altera(RegNome **inicioNomes){
           printf("|  [S] - Sim / outra tecla - para voltar |\n");
           printf("+----------------------------------------+\n");
           if(toupper(getch()) == 'S'){
-            if(percorreGenericoNomes(q->prox, pivo, alteraRegistroLista, comparaCodIguais)){
+            if(percorreGenericoNomes(q->prox, &pivo, alteraRegistroLista, comparaCodIguais)){
       		    printf("|       Ocorreu um erro ao alterar       |\n");
       		    printf("+----------------------------------------+\n");
       		    ret = 2;
@@ -405,7 +445,7 @@ int exclui(RegNome **inicioNomes){
         q = (RegNome *)(malloc(sizeof(RegNome)));
         if(q != NULL){
           q->prox = *inicioNomes;
-          if(percorreGenericoNomes(q, pivo, descreveProxRegistro, comparaCodIguaisAdiante)){
+          if(percorreGenericoNomes(q, &pivo, descreveProxRegistro, comparaCodIguaisAdiante)){
             printf("|       Nenhum registro Encontrado       |\n");
             printf("+----------------------------------------+\n");
             ret = 1;
@@ -414,7 +454,7 @@ int exclui(RegNome **inicioNomes){
             printf("|  [S] - Sim / outra tecla - para voltar |\n");
             printf("+----------------------------------------+\n");
             if(toupper(getch()) == 'S')
-                if(percorreGenericoNomes(q, pivo, excluiRegistroLista, comparaCodIguaisAdiante)){
+                if(percorreGenericoNomes(q, &pivo, excluiRegistroLista, comparaCodIguaisAdiante)){
             	    printf("|       Ocorreu um erro ao excluir       |\n");
             	    printf("+----------------------------------------+\n");
                   ret = 2;
@@ -438,12 +478,53 @@ int exclui(RegNome **inicioNomes){
 }
 
 
+// Objetivo: 
+// Parametros: O endereco do endereco do inicio da lista de nomes e o registro que sera excluido
+int criaBackup(RegNome *inicioNomes, RegNome **backupNomes){
+	int ret = 0;
+	RegNome *q = NULL;
+	q = (RegNome *)(malloc(sizeof(RegNome)));
+	if(q != NULL){
+	  *q = *inicioNomes;
+    if(*backupNomes == NULL)
+      *backupNomes = (RegNome *)(malloc(sizeof(RegNome)));
+    if(*backupNomes != NULL){
+    	RegNome *r = *backupNomes;
+      percorreGenericoNomes(r, q, copiaRegistroLista, comparaVerdadeiro);
+    }
+  }
+  return ret;
+}
+
+
+// Objetivo: 
+// Parametros: O endereco do endereco do inicio da lista de nomes e o registro que sera excluido
+void recuperaBackup(RegNome **inicioNomes, RegNome **backupNomes){
+	*inicioNomes = *backupNomes;
+	*backupNomes = NULL;
+}
+
+
 //
 int printCab(char *titulo){
 	int a = (TAM_TABELA - strlen(titulo)) / 2;
 	int b = TAM_TABELA - strlen(titulo) - a;
 	int i;
 	printf("+----------------------------------------+\n|");
+	for(i = 0; i < b; i++) printf(" ");
+	printf("%s", titulo);
+	for(i = 0; i < a; i++) printf(" ");
+	printf("|\n+----------------------------------------+\n");
+	return 1;
+}
+
+
+//
+int printCabInfer(char *titulo){
+	int a = (TAM_TABELA - strlen(titulo)) / 2;
+	int b = TAM_TABELA - strlen(titulo) - a;
+	int i;
+	prinf("|");
 	for(i = 0; i < b; i++) printf(" ");
 	printf("%s", titulo);
 	for(i = 0; i < a; i++) printf(" ");
