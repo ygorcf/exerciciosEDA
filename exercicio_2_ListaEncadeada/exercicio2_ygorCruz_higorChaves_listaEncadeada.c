@@ -34,6 +34,8 @@ int busca(RegNome *inicioNomes);
 int insere(RegNome **inicioNomes);
 int altera(RegNome **inicioNomes);
 int exclui(RegNome **inicioNomes);
+int criaBackup(RegNome *inicioNomes, RegNome **backupNomes);
+void recuperaBackup(RegNome **inicioNomes, RegNome **backupNomes);
 
 int printCab(char *titulo);
 int printCabInfer(char *titulo);
@@ -524,7 +526,11 @@ int printCabInfer(char *titulo){
 	int a = (TAM_TABELA - strlen(titulo)) / 2;
 	int b = TAM_TABELA - strlen(titulo) - a;
 	int i;
+<<<<<<< HEAD
 	prinf("|");
+=======
+	printf("|");
+>>>>>>> refs/remotes/origin/criacaoBackup
 	for(i = 0; i < b; i++) printf(" ");
 	printf("%s", titulo);
 	for(i = 0; i < a; i++) printf(" ");
