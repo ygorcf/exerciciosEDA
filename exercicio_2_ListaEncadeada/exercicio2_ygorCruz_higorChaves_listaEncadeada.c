@@ -30,6 +30,7 @@ int comparaCodIguaisAdiante(RegNome *pivo, RegNome *iterador);
 int comparaCodMenorDiferente(RegNome *pivo, RegNome *iterador);
 
 int lista(RegNome *inicioNomes);
+int listaInversa(RegNome *inicioNomes);
 int busca(RegNome *inicioNomes);
 int insere(RegNome **inicioNomes);
 int altera(RegNome **inicioNomes);
@@ -51,8 +52,7 @@ void leValidaString(char *streng, const char *tituloErr, const char *titulo,
 #define buscarNome(ini, pivo) percorreGenericoNomes((ini), (pivo), (printaNomeRegistro), (comparaCodIguais))
 
 int main(void){
-    RegNome a = {-1, "", NULL}, b, c, d, e;
-    RegNome *f = NULL, g;
+    RegNome *listaNomes = NULL, g;
     RegNome *backup = NULL;
     
     short int sair = 0;
@@ -72,105 +72,58 @@ int main(void){
         printf("| 7 |   Recuperar Backup                 |\n");
         printf("| 8 |   Sair                             |\n");
         printf("+---+------------------------------------+\n");
-        printf("|            Escolha uma opcao           |\n");
-        printf("+----------------------------------------+\n");
+        printCabInfer("Escolha uma opcao");
         fflush(stdin);
         opcao = getch();
         system("CLS");
         switch(opcao){
             case '1':
-                //listarNomes(&e);
-//		        printf("+----------------------------------------+\n");
-//		        printf("|                 LISTAR                 |\n");
-//		        printf("+----------------------------------------+\n");
-				printCab("LISTAR");
-				if(getch() == 'b') lista(backup);
-        else lista(f);
-                break;
+      				printCab("LISTAR");
+      				if(getch() != 'i')lista(listaNomes);
+      				else listaInversa(listaNomes);
+              break;
             case '2':
-//		        printf("+----------------------------------------+\n");
-//		        printf("|                 BUSCAR                 |\n");
-//		        printf("+----------------------------------------+\n");
-				printCab("BUSCAR");
-                if(busca(f)){
-                    printf("|  Nao foi possivel buscar um registro!  |\n");
-		            printf("+----------------------------------------+\n");
-                } 
-                break;
+				      printCab("BUSCAR");
+              if(busca(listaNomes)){
+                printCabInfer("Nao foi possivel buscar um registro!");
+              } 
+              break;
             case '3':
-//		        printf("+----------------------------------------+\n");
-//		        printf("|                 INSERIR                |\n");
-//		        printf("+----------------------------------------+\n");
-				printCab("INSERIR");
-                //leValidaNumero(&g.cod, "%d", "Codigo invalido", "Digite o codigo a ser inserido: ", 0, INT_MAX, NULL, 0);
-                //printaNomeRegistro(&g, NULL);
-                //if(insere(&f)) printf("|  Nao foi possivel inserir o registro!  |\n");
-                res = insere(&f);
-                if(res != 4){
-                  if(res) printf("|  Nao foi possivel inserir o registro!  |\n");
-                  else printf("|     Registro inserido com sucesso!     |\n");
-		        printf("+----------------------------------------+\n");
-                }
-                /*if(f != NULL)
-                percorreGenericoNomes(f, g, insereRegistroLista, comparaCodMenorDiferente);
-                else
-                insereRegistroLista(&f, &g);*/
-                //printf("Inserir - Ainda nao implementado\n");
-                break;
+				      printCab("INSERIR");
+              res = insere(&listaNomes);
+              if(res != 4){
+                if(res) printCabInfer("Nao foi possivel inserir o registro!");
+                else printCabInfer("Registro inserido com sucesso!");
+              }
+              break;
             case '4':
-//    		        printf("+----------------------------------------+\n");
-//    		        printf("|                 ALTERAR                |\n");
-//    		        printf("+----------------------------------------+\n");
-				printCab("ALTERAR");
-                res = altera(&f);
-                if(res != 3){
-  	              if(res) printf("|  Nao foi possivel alterar o registro!  |\n");
-  	              else printf("|     Registro alterado com sucesso!     |\n");
-		        printf("+----------------------------------------+\n");
-	              }
-                /*leValidaNumero(&g.cod, "%d", "Codigo invalido", "Digite o codigo a ser alterado: ", 0, INT_MAX, NULL, 0);
-                if(busca(f, ((RegNome){g.cod, "", NULL}))){
-	                leValidaString(g.nome, "Nome Invalido!", "Digite o novo nome: ", TAM_NOME);
-	                if(!altera(&f)) printf("Nao foi possivel alterar o registro!");
-				}*/
-                //printf("Alterar - Ainda nao implementado\n");
-                break;
+			        printCab("ALTERAR");
+              res = altera(&listaNomes);
+              if(res != 3){
+	              if(res) printCabInfer("Nao foi possivel alterar o registro!");
+	              else printCabInfer("Registro alterado com sucesso!");
+              }
+              break;
             case '5':
-//    		        printf("+----------------------------------------+\n");
-//    		        printf("|                 EXCLUIR                |\n");
-//    		        printf("+----------------------------------------+\n");
-				printCab("EXCLUIR");
-                res = exclui(&f);
-                if(res != 3){
-  	              if(res) printf("|  Nao foi possivel excluir o registro!  |\n");
-  	              else printf("|     Registro excluido com sucesso!     |\n");
-		        printf("+----------------------------------------+\n");
-	              }
-                break;
+				      printCab("EXCLUIR");
+              res = exclui(&listaNomes);
+              if(res != 3){
+	              if(res) printCabInfer("Nao foi possivel excluir o registro!");
+	              else printCabInfer("Registro excluido com sucesso!");
+              }
+              break;
             case '6':
-//    		        printf("+----------------------------------------+\n");
-//    		        printf("|                 EXCLUIR                |\n");
-//    		        printf("+----------------------------------------+\n");
-				printCab("CRIAR BACKUP");
-				
-                res = criaBackup(f, &backup);
-                /*
-                  TODO arrumar resposta para o usuario
-                */
-                if(res != 3){
-  	              if(res) printf("|  Nao foi possivel excluir o registro!  |\n");
-  	              else printf("|     Registro excluido com sucesso!     |\n");
-		        printf("+----------------------------------------+\n");
-	              }
-                break;
+				      printCab("CRIAR BACKUP");
+              if(criaBackup(listaNomes, &backup)) printCabInfer("Nao foi possivel criar o backup!");
+              else printCabInfer("Backup criado com sucesso!");
+              break;
             case '7':
-//    		        printf("+----------------------------------------+\n");
-//    		        printf("|                 EXCLUIR                |\n");
-//    		        printf("+----------------------------------------+\n");
-				printCab("RECUPERAR BACKUP");
-				
-                recuperaBackup(&f, &backup);
-                break;
+				      printCab("RECUPERAR BACKUP");
+			        if(backup != NULL){
+                recuperaBackup(&listaNomes, &backup);
+                printCabInfer("Backup Recuparado com sucesso!");
+              }else printCabInfer("Nenhum backup criado anteriormente!");
+              break;
             case '8':
                 sair = 1;
                 break;
@@ -179,8 +132,6 @@ int main(void){
         }
         if(!sair){
           printCabInfer("Aperte uma tecla para voltar");
-		    /*printf("|      Aperte uma tecla para voltar      |\n");
-		    printf("+----------------------------------------+\n");*/
 	        fflush(stdin);
 	        getch();
 		}
@@ -258,7 +209,6 @@ int excluiRegistroLista(RegNome *nomeEncontrado, RegNome *pivo){
 
 int copiaRegistroLista(RegNome *nomeEncontrado, RegNome *pivo){
     *nomeEncontrado = *pivo;
-    printf("%d - %d\n", nomeEncontrado->cod, pivo->cod);
     if(pivo->prox != NULL){
       nomeEncontrado->prox = (RegNome *)(malloc(sizeof(RegNome)));
       if(pivo->prox == NULL) return 2;
@@ -302,10 +252,25 @@ int lista(RegNome *inicioNomes){
 	if(inicioNomes != NULL){
 		RegNome *res = NULL;
 		percorreGenericoNomes(inicioNomes, NULL, printaNomeRegistro, comparaVerdadeiro);
-	}else{
-	    printf("|       Nenhum registro Cadastrado       |\n");
-	    printf("+----------------------------------------+\n");
+	}else printCabInfer("Nenhum registro Cadastrado");
+	return 0;
+}
+
+
+//
+int listaInversa(RegNome *inicioNomes){
+  RegNome *q = NULL, *r = inicioNomes, *s = NULL;
+	while(r != NULL){
+    s = (RegNome *)(malloc(sizeof(RegNome)));
+  	if(s != NULL){
+	    *s = *r;
+	    s->prox = q;
+	    r = r->prox;
+	    q = s;
+	    s = NULL;
+    }
 	}
+	lista(q);
 	return 0;
 }
 
@@ -323,18 +288,10 @@ int busca(RegNome *inicioNomes){
         q = (RegNome *)(malloc(sizeof(RegNome)));
         if(q != NULL){
             q->prox = inicioNomes;
-            if(percorreGenericoNomes(q, &pivo, descreveProxRegistro, comparaCodIguaisAdiante)){
-                printf("|       Nenhum registro Encontrado       |\n");
-                printf("+----------------------------------------+\n");
-            }
-        }else{
-		    printf("|       Ocorreu um erro na memoria       |\n");
-		    printf("+----------------------------------------+\n");
-        }
-	}else{
-	    printf("|       Nenhum registro Cadastrado       |\n");
-	    printf("+----------------------------------------+\n");
-	}
+            if(percorreGenericoNomes(q, &pivo, descreveProxRegistro, comparaCodIguaisAdiante))
+              printCabInfer("Nenhum registro Encontrado");
+        }else printCabInfer("Ocorreu um erro na memoria");
+	}else printCabInfer("Nenhum registro Cadastrado");
 	return ret;
 }
 
@@ -350,8 +307,7 @@ int insere(RegNome **inicioNomes){
 	printf("+----------------------------------------+\n");
     printaNomeRegistro(&pivo, NULL);
     printf("|        Os dados estao corretos?        |\n");
-    printf("|  [S] - Sim / outra tecla - para voltar |\n");
-	printf("+----------------------------------------+\n");
+    printCabInfer("[S] - Sim / outra tecla - para voltar");
     if(toupper(getch()) == 'S')
         if(*inicioNomes == NULL){ // Nenhum
             pivo.prox = NULL;
@@ -359,8 +315,7 @@ int insere(RegNome **inicioNomes){
             if(*inicioNomes != NULL){
                 **inicioNomes = pivo;
             }else{
-                printf("|       Ocorreu um erro na memoria       |\n");
-                printf("+----------------------------------------+\n");
+                printCabInfer("Ocorreu um erro na memoria");
                 ret = 1;
             }
         }else{
@@ -371,13 +326,11 @@ int insere(RegNome **inicioNomes){
                 if(!percorreGenericoNomes(q, &pivo, insereRegistroLista, comparaCodMenorDiferente)){
                     *inicioNomes = q->prox;
                 }else{
-                    printf("|       Ocorreu um erro ao inserir       |\n");
-                    printf("+----------------------------------------+\n");
+                    printCabInfer("Ocorreu um erro ao inserir");
                     ret = 2;
                 }
             }else{
-                printf("|       Ocorreu um erro na memoria       |\n");
-                printf("+----------------------------------------+\n");
+                printCabInfer("Ocorreu um erro na memoria");
                 ret = 3;
             }
         }
@@ -402,32 +355,27 @@ int altera(RegNome **inicioNomes){
       if(q != NULL){
         q->prox = *inicioNomes;
         if(percorreGenericoNomes(q, &pivo, descreveProxRegistro, comparaCodIguaisAdiante)){
-          printf("|       Nenhum registro Encontrado       |\n");
-          printf("+----------------------------------------+\n");
+          printCabInfer("Nenhum registro Encontrado");
           ret = 1;
         }else{
           leValidaString(pivo.nome, "Nome Invalido!", "Digite o novo nome: ", TAM_NOME);
           printf("+----------------------------------------+\n");
           printaNomeRegistro(&pivo, NULL);
           printf("|        Os dados estao corretos?        |\n");
-          printf("|  [S] - Sim / outra tecla - para voltar |\n");
-          printf("+----------------------------------------+\n");
+          printCabInfer("[S] - Sim / outra tecla - para voltar");
           if(toupper(getch()) == 'S'){
             if(percorreGenericoNomes(q->prox, &pivo, alteraRegistroLista, comparaCodIguais)){
-      		    printf("|       Ocorreu um erro ao alterar       |\n");
-      		    printf("+----------------------------------------+\n");
+      		    printCabInfer("Ocorreu um erro ao alterar");
       		    ret = 2;
       		  }else *inicioNomes = q->prox;
           }else ret = 3;
         }
       }else{
-		    printf("|       Ocorreu um erro na memoria       |\n");
-		    printf("+----------------------------------------+\n");
+		    printCabInfer("Ocorreu um erro na memoria");
       	ret = 4;
       }
     }else{
-	    printf("|       Ocorreu um erro na memoria       |\n");
-	    printf("+----------------------------------------+\n");
+		  printCabInfer("Ocorreu um erro na memoria");
       ret = 5;
     }
     return ret;
@@ -448,17 +396,14 @@ int exclui(RegNome **inicioNomes){
         if(q != NULL){
           q->prox = *inicioNomes;
           if(percorreGenericoNomes(q, &pivo, descreveProxRegistro, comparaCodIguaisAdiante)){
-            printf("|       Nenhum registro Encontrado       |\n");
-            printf("+----------------------------------------+\n");
+            printCabInfer("Nenhum registro Encontrado");
             ret = 1;
           }else{
             printf("|        Os dados estao corretos?        |\n");
-            printf("|  [S] - Sim / outra tecla - para voltar |\n");
-            printf("+----------------------------------------+\n");
+            printCabInfer("[S] - Sim / outra tecla - para voltar");
             if(toupper(getch()) == 'S')
                 if(percorreGenericoNomes(q, &pivo, excluiRegistroLista, comparaCodIguaisAdiante)){
-            	    printf("|       Ocorreu um erro ao excluir       |\n");
-            	    printf("+----------------------------------------+\n");
+            	    printCabInfer("Ocorreu um erro ao excluir");
                   ret = 2;
                 }else{
                 	*inicioNomes = q->prox;
@@ -467,13 +412,11 @@ int exclui(RegNome **inicioNomes){
           }
           free(q);
         }else{
-  	    printf("|       Ocorreu um erro na memoria       |\n");
-  	    printf("+----------------------------------------+\n");
+  	    printCabInfer("Ocorreu um erro na memoria");
         ret = 4;
       }
     }else{
-	    printf("|       Ocorreu um erro na memoria       |\n");
-	    printf("+----------------------------------------+\n");
+  	  printCabInfer("Ocorreu um erro na memoria");
       ret = 5;
     }
     return ret;
@@ -484,16 +427,24 @@ int exclui(RegNome **inicioNomes){
 // Parametros: O endereco do endereco do inicio da lista de nomes e o registro que sera excluido
 int criaBackup(RegNome *inicioNomes, RegNome **backupNomes){
 	int ret = 0;
-	RegNome *q = NULL;
-	q = (RegNome *)(malloc(sizeof(RegNome)));
-	if(q != NULL){
-	  *q = *inicioNomes;
-    if(*backupNomes == NULL)
-      *backupNomes = (RegNome *)(malloc(sizeof(RegNome)));
-    if(*backupNomes != NULL){
-    	RegNome *r = *backupNomes;
-      percorreGenericoNomes(r, q, copiaRegistroLista, comparaVerdadeiro);
+	if(inicioNomes != NULL){
+  	RegNome *q = NULL;
+  	q = (RegNome *)(malloc(sizeof(RegNome)));
+  	if(q != NULL){
+  	  *q = *inicioNomes;
+      if(*backupNomes == NULL)
+        *backupNomes = (RegNome *)(malloc(sizeof(RegNome)));
+      if(*backupNomes != NULL){
+      	RegNome *r = *backupNomes;
+        percorreGenericoNomes(r, q, copiaRegistroLista, comparaVerdadeiro);
+      }
+    }else{
+  	  printCabInfer("Ocorreu um erro na memoria");
+      ret = 1;
     }
+  }else{
+    printCabInfer("Nenhum registro cadastrado!");
+      ret = 2;
   }
   return ret;
 }
