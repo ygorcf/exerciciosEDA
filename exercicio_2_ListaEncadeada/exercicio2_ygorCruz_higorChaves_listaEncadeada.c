@@ -64,13 +64,14 @@ int main(void){
         printf("|                  MENU                  |\n");
         printf("+---+------------------------------------+\n");
         printf("| 1 |   Listar                           |\n");
-        printf("| 2 |   Buscar                           |\n");
-        printf("| 3 |   Inserir                          |\n");
-        printf("| 4 |   Alterar                          |\n");
-        printf("| 5 |   Excluir                          |\n");
-        printf("| 6 |   Criar Backup                     |\n");
-        printf("| 7 |   Recuperar Backup                 |\n");
-        printf("| 8 |   Sair                             |\n");
+        printf("| 2 |   Listar (Ordem Inversa)           |\n");
+        printf("| 3 |   Buscar                           |\n");
+        printf("| 4 |   Inserir                          |\n");
+        printf("| 5 |   Alterar                          |\n");
+        printf("| 6 |   Excluir                          |\n");
+        printf("| 7 |   Criar Backup                     |\n");
+        printf("| 8 |   Recuperar Backup                 |\n");
+        printf("| 9 |   Sair                             |\n");
         printf("+---+------------------------------------+\n");
         printCabInfer("Escolha uma opcao");
         fflush(stdin);
@@ -79,16 +80,19 @@ int main(void){
         switch(opcao){
             case '1':
       				printCab("LISTAR");
-      				if(getch() != 'i')lista(listaNomes);
-      				else listaInversa(listaNomes);
+      				lista(listaNomes);
               break;
             case '2':
+      				printCab("LISTAR (ORDEM INVERSA)");
+      				listaInversa(listaNomes);
+              break;
+            case '3':
 				      printCab("BUSCAR");
               if(busca(listaNomes)){
                 printCabInfer("Nao foi possivel buscar um registro!");
               } 
               break;
-            case '3':
+            case '4':
 				      printCab("INSERIR");
               res = insere(&listaNomes);
               if(res != 4){
@@ -96,7 +100,7 @@ int main(void){
                 else printCabInfer("Registro inserido com sucesso!");
               }
               break;
-            case '4':
+            case '5':
 			        printCab("ALTERAR");
               res = altera(&listaNomes);
               if(res != 3){
@@ -104,7 +108,7 @@ int main(void){
 	              else printCabInfer("Registro alterado com sucesso!");
               }
               break;
-            case '5':
+            case '6':
 				      printCab("EXCLUIR");
               res = exclui(&listaNomes);
               if(res != 3){
@@ -112,19 +116,19 @@ int main(void){
 	              else printCabInfer("Registro excluido com sucesso!");
               }
               break;
-            case '6':
+            case '7':
 				      printCab("CRIAR BACKUP");
               if(criaBackup(listaNomes, &backup)) printCabInfer("Nao foi possivel criar o backup!");
               else printCabInfer("Backup criado com sucesso!");
               break;
-            case '7':
+            case '8':
 				      printCab("RECUPERAR BACKUP");
 			        if(backup != NULL){
                 recuperaBackup(&listaNomes, &backup);
                 printCabInfer("Backup Recuparado com sucesso!");
               }else printCabInfer("Nenhum backup criado anteriormente!");
               break;
-            case '8':
+            case '9':
                 sair = 1;
                 break;
             default:
@@ -477,11 +481,7 @@ int printCabInfer(char *titulo){
 	int a = (TAM_TABELA - strlen(titulo)) / 2;
 	int b = TAM_TABELA - strlen(titulo) - a;
 	int i;
-<<<<<<< HEAD
-	prinf("|");
-=======
 	printf("|");
->>>>>>> refs/remotes/origin/criacaoBackup
 	for(i = 0; i < b; i++) printf(" ");
 	printf("%s", titulo);
 	for(i = 0; i < a; i++) printf(" ");
