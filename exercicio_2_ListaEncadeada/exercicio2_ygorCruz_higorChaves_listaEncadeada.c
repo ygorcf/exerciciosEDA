@@ -16,7 +16,7 @@ typedef struct reg{
 } RegNome;
 
 typedef struct superRegStruct{
-    struct reg *incioLista;
+    struct reg *inicioLista;
     int qtdNos;
     struct reg *fimLista;
 } SuperReg;
@@ -91,6 +91,7 @@ int main(void){
             case '2':
       				printCab("LISTAR (ORDEM INVERSA)");
       				listaInversa(&superPtr);
+	printf("127\n");
               break;
             case '3':
 				      printCab("BUSCAR");
@@ -101,7 +102,7 @@ int main(void){
             case '4':
 				      printCab("INSERIR");
               res = insere(&superPtr);
-                    printf("(%d)\n", superPtr.incioLista->cod);
+                    printf("(%d)\n", superPtr.inicioLista->cod);
               if(res != 4){
                 if(res) printCabInfer("Nao foi possivel inserir o registro!");
                 else printCabInfer("Registro inserido com sucesso!");
@@ -117,7 +118,7 @@ int main(void){
               break;
             case '6':
 				      printCab("EXCLUIR");
-              res = exclui(&listaNomes);
+              res = exclui(&superPtr);
               if(res != 3){
 	              if(res) printCabInfer("Nao foi possivel excluir o registro!");
 	              else printCabInfer("Registro excluido com sucesso!");
@@ -125,13 +126,13 @@ int main(void){
               break;
             case '7':
 				      printCab("CRIAR BACKUP");
-              if(criaBackup(listaNomes, &backup)) printCabInfer("Nao foi possivel criar o backup!");
+              if(criaBackup(&superPtr, &backup)) printCabInfer("Nao foi possivel criar o backup!");
               else printCabInfer("Backup criado com sucesso!");
               break;
             case '8':
 				      printCab("RECUPERAR BACKUP");
-			        if(backup.incioLista != NULL){
-                recuperaBackup(&listaNomes, &backup);
+			        if(backup.inicioLista != NULL){
+                recuperaBackup(&superPtr, &backup);
                 printCabInfer("Backup Recuparado com sucesso!");
               }else printCabInfer("Nenhum backup criado anteriormente!");
               break;
@@ -156,15 +157,14 @@ int main(void){
 }
 
 int percorreGenericoNomes(SuperReg *admRegs, RegNome *pivo, int (*funcEncontrar)(RegNome *iterador, RegNome *pivo), int (*funcComparar)(RegNome *pivo, RegNome *iterador)){
-    RegNome *p = admRegs->incioLista;
+    RegNome *p = admRegs->inicioLista;
     int alterado = 0, ret = 0;
     while(p != NULL){
         int aux = funcComparar(pivo, p);
         if(aux == 1) alterado = funcEncontrar(p, pivo);
-    	admRegs->incioLista = p;
         if(alterado){
-    		p = NULL;
-		}
+		    		p = NULL;
+				}
         else if(p->prox == NULL){
             ret = 1;
             p = NULL;
@@ -173,9 +173,7 @@ int percorreGenericoNomes(SuperReg *admRegs, RegNome *pivo, int (*funcEncontrar)
             p = NULL;
             ret = 2;
         }
-	    if(p != NULL){
-	    	if(p->prox == NULL) admRegs->fimLista = p;
-		}
+	    if(p != NULL && p->prox == NULL) admRegs->fimLista = p;
     }
     return ret;
 }
@@ -200,10 +198,12 @@ int insereRegistroLista(RegNome *nomeEncontrado, RegNome *pivo){
     assert(q != NULL);
     *q = *pivo;
     if(nomeEncontrado != NULL){
+	printf("127\n");
         q->prox = nomeEncontrado->prox;
         nomeEncontrado->prox = q;
-        printf("FOI!(%u)(()%u)\n", q, nomeEncontrado);
+        printf("FOI!(%d)(%u)(%u)\n", q->cod, nomeEncontrado->cod, nomeEncontrado->prox->cod);
     }else{
+	printf("17777\n");
         q->prox = NULL;
         nomeEncontrado = q;
     }
@@ -264,38 +264,50 @@ int comparaCodIguaisAdiante(RegNome *pivo, RegNome *iterador){
 // Parametros: Dois registros  
 int comparaCodMenorDiferente(RegNome *pivo, RegNome *iterador){
     int ret = 1;
-    if(iterador != NULL && iterador->prox != NULL){
+    if(iterador == NULL) ret = 0;
+    else if(iterador->prox != NULL){
     	if(pivo->cod == iterador->cod) return 2;
-		ret = (pivo->cod < iterador->prox->cod);// && (pivo->cod != iterador->cod);
-	}
+			ret = (pivo->cod < iterador->prox->cod);// && (pivo->cod != iterador->cod);
+		}
     return ret;
 }
 
 
 //
 int lista(SuperReg *admRegs){
-	if(admRegs->incioLista != NULL) percorreGenericoNomes(admRegs, NULL, printaNomeRegistro, comparaVerdadeiro);
+	SuperReg q = *admRegs;
+	if(q.inicioLista != NULL) percorreGenericoNomes(&q, NULL, printaNomeRegistro, comparaVerdadeiro);
 	else printCabInfer("Nenhum registro Cadastrado");
+	printf("127\n");
 	return 0;
 }
 
 
 //
 int listaInversa(SuperReg *admRegs){
+	printf("127\n");
   SuperReg q = {NULL, 0, NULL};
-  RegNome *r = admRegs->incioLista, *s = NULL;
+	printf("127\n");
+  RegNome *r = admRegs->inicioLista, *s = NULL;
+	printf("127\n");
 	while(r != NULL){
-    s = (RegNome *)(malloc(sizeof(RegNome)));
-  	if(s != NULL){
+	  s = (RegNome *)(malloc(sizeof(RegNome)));
+	  if(s != NULL){
+			printf("-> %d\n", q.qtdNos);
 	    *s = *r;
-	    s->prox = q.incioLista;
+			printf("-> %d\n", q.qtdNos);
+	    s->prox = q.inicioLista;
+			printf("-> %d\n", q.qtdNos);
 	    r = r->prox;
-	    q.incioLista = s;
-	    s = NULL;
+	    q.inicioLista = s;
+			printf("-> %d\n", q.qtdNos);
 	    q.qtdNos++;
+	  	s = NULL;
     }
 	}
+	printf("127\n");
 	lista(&q);
+	printf("127\n");
 	return 0;
 }
 
@@ -304,15 +316,15 @@ int listaInversa(SuperReg *admRegs){
 // Parametros: O endereco do endereco do inicio da lista de nomes
 int busca(SuperReg *admRegs){
 	int ret = 0;
-	if(admRegs->incioLista != NULL){
+	if(admRegs->inicioLista != NULL){
 		SuperReg q;
         RegNome pivo;
         
         leValidaNumero(&pivo.cod, "%d", "| Codigo invalido", "| Digite o codigo a ser pesquisado: ", 0, INT_MAX, NULL, 0);
         printf("+----------------------------------------+\n");
-        q.incioLista = (RegNome *)(malloc(sizeof(RegNome)));
-        if(q.incioLista != NULL){
-            q.incioLista->prox = admRegs->incioLista;
+        q.inicioLista = (RegNome *)(malloc(sizeof(RegNome)));
+        if(q.inicioLista != NULL){
+            q.inicioLista->prox = admRegs->inicioLista;
             if(percorreGenericoNomes(&q, &pivo, descreveProxRegistro, comparaCodIguaisAdiante))
               printCabInfer("Nenhum registro Encontrado");
         }else printCabInfer("Ocorreu um erro na memoria");
@@ -334,24 +346,24 @@ int insere(SuperReg *admRegs){
     printf("|        Os dados estao corretos?        |\n");
     printCabInfer("[S] - Sim / outra tecla - para voltar");
     if(toupper(getch()) == 'S')
-        if(admRegs->incioLista == NULL){ // Nenhum
+        if(admRegs->inicioLista == NULL){ // Nenhum
             pivo.prox = NULL;
-            admRegs->incioLista = (RegNome *)(malloc(sizeof(RegNome)));
-            if(admRegs->incioLista != NULL){
-                *admRegs->incioLista = pivo;
+            admRegs->inicioLista = (RegNome *)(malloc(sizeof(RegNome)));
+            if(admRegs->inicioLista != NULL){
+                *admRegs->inicioLista = pivo;
             }else{
                 printCabInfer("Ocorreu um erro na memoria");
                 ret = 1;
             }
         }else{
-            SuperReg *q = NULL;
-            q = (SuperReg *)(malloc(sizeof(SuperReg)));
-            if(q != NULL){
-                q->incioLista->prox = admRegs->incioLista;
-                    printf("(%u)(%u)\n", q->incioLista, q->incioLista->prox);
-                if(!percorreGenericoNomes(q, &pivo, insereRegistroLista, comparaCodMenorDiferente)){
-                    admRegs->incioLista = q->incioLista->prox;
-                    printf("(%u)\n", admRegs->incioLista);
+            SuperReg q;
+            q.inicioLista = (RegNome *)(malloc(sizeof(RegNome)));
+            if(q.inicioLista != NULL){
+                q.inicioLista->prox = admRegs->inicioLista;
+                    printf("(%u)(%u)\n", q.inicioLista, q.inicioLista->prox);
+                if(!percorreGenericoNomes(&q, &pivo, insereRegistroLista, comparaCodMenorDiferente)){
+                    admRegs->inicioLista = q.inicioLista->prox;
+                    printf("(%u)\n", admRegs->inicioLista);
                 }else{
                     printCabInfer("Ocorreu um erro ao inserir");
                     ret = 2;
@@ -371,17 +383,18 @@ int insere(SuperReg *admRegs){
 int altera(SuperReg *admRegs){
 	int ret = 0;
     
-    if(admRegs->incioLista != NULL){
-      RegNome *q = NULL, *res = NULL;
+    if(admRegs->inicioLista != NULL){
+    	SuperReg q = {NULL, 0, NULL};
+      RegNome *res = NULL;
       RegNome pivo;
   
       leValidaNumero(&pivo.cod, "%d", "| Codigo invalido", "| Digite o codigo a ser alterado: ", 0, INT_MAX, NULL, 0);
           printf("+----------------------------------------+\n");
       
-      q = (RegNome *)(malloc(sizeof(RegNome)));
-      if(q != NULL){
-        q->prox = admRegs->incioLista;
-        if(percorreGenericoNomes(q, &pivo, descreveProxRegistro, comparaCodIguaisAdiante)){
+      q.inicioLista = (RegNome *)(malloc(sizeof(RegNome)));
+      if(q.inicioLista != NULL){
+        q.inicioLista->prox = admRegs->inicioLista;
+        if(percorreGenericoNomes(&q, &pivo, descreveProxRegistro, comparaCodIguaisAdiante)){
           printCabInfer("Nenhum registro Encontrado");
           ret = 1;
         }else{
@@ -391,10 +404,11 @@ int altera(SuperReg *admRegs){
           printf("|        Os dados estao corretos?        |\n");
           printCabInfer("[S] - Sim / outra tecla - para voltar");
           if(toupper(getch()) == 'S'){
-            if(percorreGenericoNomes(q->prox, &pivo, alteraRegistroLista, comparaCodIguais)){
+          	q.inicioLista = q.inicioLista->prox;
+            if(percorreGenericoNomes(&q, &pivo, alteraRegistroLista, comparaCodIguais)){
       		    printCabInfer("Ocorreu um erro ao alterar");
       		    ret = 2;
-      		  }else admRegs->incioLista = q->prox;
+      		  }else admRegs->inicioLista = q.inicioLista;
           }else ret = 3;
         }
       }else{
@@ -413,31 +427,31 @@ int altera(SuperReg *admRegs){
 // Parametros: O endereco do endereco do inicio da lista de nomes e o registro que sera excluido
 int exclui(SuperReg *admRegs){
 	int ret = 0;
-    if(admRegs->incioLista != NULL){
-        RegNome *q = NULL;
+    if(admRegs->inicioLista != NULL){
+        SuperReg q = {NULL, 0, NULL};
         RegNome pivo;
         
         leValidaNumero(&pivo.cod, "%d", "Codigo invalido", "Digite o codigo a ser excluido: ", 0, INT_MAX, NULL, 0);
         printf("+----------------------------------------+\n");
-        q = (RegNome *)(malloc(sizeof(RegNome)));
-        if(q != NULL){
-          q->prox = admRegs->incioLista;
-          if(percorreGenericoNomes(q, &pivo, descreveProxRegistro, comparaCodIguaisAdiante)){
+        q.inicioLista = (RegNome *)(malloc(sizeof(RegNome)));
+        if(q.inicioLista != NULL){
+          q.inicioLista->prox = admRegs->inicioLista;
+          if(percorreGenericoNomes(&q, &pivo, descreveProxRegistro, comparaCodIguaisAdiante)){
             printCabInfer("Nenhum registro Encontrado");
             ret = 1;
           }else{
             printf("|        Os dados estao corretos?        |\n");
             printCabInfer("[S] - Sim / outra tecla - para voltar");
             if(toupper(getch()) == 'S')
-                if(percorreGenericoNomes(q, &pivo, excluiRegistroLista, comparaCodIguaisAdiante)){
+                if(percorreGenericoNomes(&q, &pivo, excluiRegistroLista, comparaCodIguaisAdiante)){
             	    printCabInfer("Ocorreu um erro ao excluir");
                   ret = 2;
                 }else{
-                	admRegs->incioLista = q->prox;
+                	admRegs->inicioLista = q.inicioLista->prox;
       		      }
             else ret = 3;
           }
-          free(q);
+          free(q.inicioLista);
         }else{
   	    printCabInfer("Ocorreu um erro na memoria");
         ret = 4;
@@ -466,16 +480,16 @@ void freeLista(RegNome *reg){
 // Parametros: O endereco do endereco do inicio da lista de nomes e o registro que sera excluido
 int criaBackup(SuperReg *admRegs, SuperReg *backupAdmRegs){
 	int ret = 0;
-	if(admRegs->incioLista != NULL){
+	if(admRegs->inicioLista != NULL){
   	RegNome *q = NULL;
   	q = (RegNome *)(malloc(sizeof(RegNome)));
   	if(q != NULL){
-  	  *q = *admRegs->incioLista;
-      if(backupAdmRegs->incioLista == NULL)
-        backupAdmRegs->incioLista = (RegNome *)(malloc(sizeof(RegNome)));
-      if(backupAdmRegs->incioLista != NULL){
-      	RegNome *r = backupAdmRegs->incioLista;
-        percorreGenericoNomes(r, q, copiaRegistroLista, comparaVerdadeiro);
+  	  *q = *admRegs->inicioLista;
+      if(backupAdmRegs->inicioLista == NULL)
+        backupAdmRegs->inicioLista = (RegNome *)(malloc(sizeof(RegNome)));
+      if(backupAdmRegs->inicioLista != NULL){
+      	SuperReg r = *backupAdmRegs;
+        percorreGenericoNomes(&r, q, copiaRegistroLista, comparaVerdadeiro);
       }
     }else{
   	  printCabInfer("Ocorreu um erro na memoria");
@@ -492,9 +506,9 @@ int criaBackup(SuperReg *admRegs, SuperReg *backupAdmRegs){
 // Objetivo: 
 // Parametros: O endereco do endereco do inicio da lista de nomes e o registro que sera excluido
 void recuperaBackup(SuperReg *admRegs, SuperReg *backupAdmRegs){
-    freeLista(admRegs->incioLista);
-	admRegs->incioLista = backupAdmRegs->incioLista;
-	backupAdmRegs->incioLista = NULL;
+    freeLista(admRegs->inicioLista);
+	admRegs->inicioLista = backupAdmRegs->inicioLista;
+	backupAdmRegs->inicioLista = NULL;
 }
 
 
