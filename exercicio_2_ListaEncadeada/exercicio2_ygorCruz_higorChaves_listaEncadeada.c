@@ -91,7 +91,6 @@ int main(void){
             case '2':
       				printCab("LISTAR (ORDEM INVERSA)");
       				listaInversa(&superPtr);
-	printf("127\n");
               break;
             case '3':
 				      printCab("BUSCAR");
@@ -102,7 +101,6 @@ int main(void){
             case '4':
 				      printCab("INSERIR");
               res = insere(&superPtr);
-                    printf("(%d)\n", superPtr.inicioLista->cod);
               if(res != 4){
                 if(res) printCabInfer("Nao foi possivel inserir o registro!");
                 else printCabInfer("Registro inserido com sucesso!");
@@ -198,12 +196,9 @@ int insereRegistroLista(RegNome *nomeEncontrado, RegNome *pivo){
     assert(q != NULL);
     *q = *pivo;
     if(nomeEncontrado != NULL){
-	printf("127\n");
         q->prox = nomeEncontrado->prox;
         nomeEncontrado->prox = q;
-        printf("FOI!(%d)(%u)(%u)\n", q->cod, nomeEncontrado->cod, nomeEncontrado->prox->cod);
     }else{
-	printf("17777\n");
         q->prox = NULL;
         nomeEncontrado = q;
     }
@@ -278,36 +273,26 @@ int lista(SuperReg *admRegs){
 	SuperReg q = *admRegs;
 	if(q.inicioLista != NULL) percorreGenericoNomes(&q, NULL, printaNomeRegistro, comparaVerdadeiro);
 	else printCabInfer("Nenhum registro Cadastrado");
-	printf("127\n");
 	return 0;
 }
 
 
 //
 int listaInversa(SuperReg *admRegs){
-	printf("127\n");
   SuperReg q = {NULL, 0, NULL};
-	printf("127\n");
   RegNome *r = admRegs->inicioLista, *s = NULL;
-	printf("127\n");
 	while(r != NULL){
 	  s = (RegNome *)(malloc(sizeof(RegNome)));
 	  if(s != NULL){
-			printf("-> %d\n", q.qtdNos);
 	    *s = *r;
-			printf("-> %d\n", q.qtdNos);
 	    s->prox = q.inicioLista;
-			printf("-> %d\n", q.qtdNos);
 	    r = r->prox;
 	    q.inicioLista = s;
-			printf("-> %d\n", q.qtdNos);
 	    q.qtdNos++;
 	  	s = NULL;
     }
 	}
-	printf("127\n");
 	lista(&q);
-	printf("127\n");
 	return 0;
 }
 
@@ -360,10 +345,8 @@ int insere(SuperReg *admRegs){
             q.inicioLista = (RegNome *)(malloc(sizeof(RegNome)));
             if(q.inicioLista != NULL){
                 q.inicioLista->prox = admRegs->inicioLista;
-                    printf("(%u)(%u)\n", q.inicioLista, q.inicioLista->prox);
                 if(!percorreGenericoNomes(&q, &pivo, insereRegistroLista, comparaCodMenorDiferente)){
                     admRegs->inicioLista = q.inicioLista->prox;
-                    printf("(%u)\n", admRegs->inicioLista);
                 }else{
                     printCabInfer("Ocorreu um erro ao inserir");
                     ret = 2;
