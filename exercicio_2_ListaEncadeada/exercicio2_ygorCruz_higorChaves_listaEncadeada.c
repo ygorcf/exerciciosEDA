@@ -4,7 +4,8 @@
 #include <string.h>
 #include <limits.h>
 #include <assert.h>
-//#include <conio.c>
+#include <conio.c>
+#include <pthread.h>
 
 #define TAM_NOME 80
 #define TAM_TABELA 40
@@ -57,6 +58,9 @@ void leValidaString(char *streng, const char *tituloErr, const char *titulo,
 
 
 int main(void){
+    pthread_t *thread = NULL;
+    pthread_create(thread, );
+    
     RegNome *listaNomes = NULL, g;
     SuperReg superPtr = {NULL, 0, NULL};
     SuperReg backup = {NULL, 0, NULL};
@@ -330,6 +334,7 @@ int insere(SuperReg *admRegs){
     printaNomeRegistro(&pivo, NULL);
     printf("|        Os dados estao corretos?        |\n");
     printCabInfer("[S] - Sim / outra tecla - para voltar");
+    fflush(stdin);
     if(toupper(getch()) == 'S')
         if(admRegs->inicioLista == NULL){ // Nenhum
             pivo.prox = NULL;
@@ -386,6 +391,7 @@ int altera(SuperReg *admRegs){
           printaNomeRegistro(&pivo, NULL);
           printf("|        Os dados estao corretos?        |\n");
           printCabInfer("[S] - Sim / outra tecla - para voltar");
+          fflush(stdin);
           if(toupper(getch()) == 'S'){
           	q.inicioLista = q.inicioLista->prox;
             if(percorreGenericoNomes(&q, &pivo, alteraRegistroLista, comparaCodIguais)){
@@ -425,6 +431,7 @@ int exclui(SuperReg *admRegs){
           }else{
             printf("|        Os dados estao corretos?        |\n");
             printCabInfer("[S] - Sim / outra tecla - para voltar");
+            fflush(stdin);
             if(toupper(getch()) == 'S')
                 if(percorreGenericoNomes(&q, &pivo, excluiRegistroLista, comparaCodIguaisAdiante)){
             	    printCabInfer("Ocorreu um erro ao excluir");
