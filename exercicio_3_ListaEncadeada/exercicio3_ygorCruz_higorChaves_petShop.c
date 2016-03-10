@@ -9,6 +9,10 @@
 #define TAM_NOME 80
 #define TAM_TABELA 40
 
+int percorreGenericoNomes(SuperReg *admRegs, RegNome *pivo, 
+  int (*funcEncontrar)(RegNome *nomeEncontrado, RegNome *pivo), int (*funcComparar)(RegNome *pivo, RegNome *iterador));
+
+void menuClientes();
 void printMenu(char *titulo, char **opcoes, int qtdOpcoes);
 void printLinhaCab(int dividir);
 int printCab(char *titulo);
@@ -22,15 +26,147 @@ void leValidaString(char *streng, const char *tituloErr, const char *titulo,
  const int tamMaxStreng);
 
 int main(void){
-    char *opcoesMenuPrincipal[] = {"Menu de Clientes", 
-                                    "Menu de Racas"};
-    
-    system("CLS");
-    printMenu("MENU", opcoesMenuPrincipal, 2);
+    short int sair = 0;
+    char opcao;
+    char *opcoesMenu[] = {"Menu de Clientes", 
+                                    "Menu de Racas",
+                                    "Sair"};
+
+    while(!sair){
+        system("CLS");
+        printMenu("MENU PRINCIPAL", opcoesMenu, 3);
+        printCabInfer("Escolha uma opcao");
+        fflush(stdin);
+        opcao = getch();
+        system("CLS");
+        switch(opcao){
+            case '1':
+                menuClientes();
+                break;
+            case '2':
+                printCab();
+                break;
+            case '3':
+                sair = 1;
+                break;
+            default:
+                printCab("Opcao invalida!!");
+                printCabInfer("Aperte uma tecla para voltar");
+                fflush(stdin);
+                getch();
+        }
+    }
     
     system("PAUSE");
     return 0;
 }
+
+int percorreGenericoNomes(SuperReg *admRegs, RegNome *pivo, int (*funcEncontrar)(RegNome *iterador, RegNome *pivo), int (*funcComparar)(RegNome *pivo, RegNome *iterador)){
+    RegNome *p = admRegs->inicioLista;
+    int alterado = 0, ret = 0;
+    while(p != NULL){
+        int aux = funcComparar(pivo, p);
+        if(aux){
+            alterado = f;
+            if(!uncEncontrar(p, pivo)) ret = 1;
+            p = NULL;
+        }
+        if(aux != 2) p = p->prox;
+        if(p != NULL && p->prox == NULL) admRegs->fimLista = p;
+    }
+    return ret;
+}
+
+
+//
+void menuClientes(){
+    short int sair = 0;
+    char opcao;
+    char *opcoesMenu[] = {"Listar", 
+                                    "Inserir",
+                                    "Alterar",
+                                    "Excluir",
+                                    "Sair"};
+
+    while(!sair){
+        system("CLS");
+        printMenu("MENU DE CLIENTES", opcoesMenu, 5);
+        printCabInfer("Escolha uma opcao");
+        fflush(stdin);
+        opcao = getch();
+        system("CLS");
+        switch(opcao){
+            case '1':
+                printCab("Listar ainda nao implementado");
+                break;
+            case '2':
+                printCab("Inserir ainda nao implementado");
+                break;
+            case '3':
+                printCab("Alterar ainda nao implementado");
+                break;
+            case '4':
+                printCab("Excluir ainda nao implementado");
+                break;
+            case '5':
+                sair = 1;
+                break;
+            default:
+                printCab("Opcao invalida!!");        
+        }
+        if(!sair){
+            printCabInfer("Aperte uma tecla para voltar");
+            fflush(stdin);
+            getch();
+        }
+    }
+}
+
+
+//
+void menuRacas(){
+    short int sair = 0;
+    char opcao;
+    char *opcoesMenu[] = {"Listar", 
+                                    "Inserir",
+                                    "Alterar",
+                                    "Excluir",
+                                    "Sair"};
+
+    while(!sair){
+        system("CLS");
+        printMenu("MENU DE RACAS", opcoesMenu, 5);
+        printCabInfer("Escolha uma opcao");
+        fflush(stdin);
+        opcao = getch();
+        system("CLS");
+        switch(opcao){
+            case '1':
+                printCab("Listar ainda nao implementado");
+                break;
+            case '2':
+                printCab("Inserir ainda nao implementado");
+                break;
+            case '3':
+                printCab("Alterar ainda nao implementado");
+                break;
+            case '4':
+                printCab("Excluir ainda nao implementado");
+                break;
+            case '5':
+                sair = 1;
+                break;
+            default:
+                printCab("Opcao invalida!!");        
+        }
+        if(!sair){
+            printCabInfer("Aperte uma tecla para voltar");
+            fflush(stdin);
+            getch();
+        }
+    }
+}
+
 
 //
 void printMenu(char *titulo, char **opcoes, int qtdOpcoes){
