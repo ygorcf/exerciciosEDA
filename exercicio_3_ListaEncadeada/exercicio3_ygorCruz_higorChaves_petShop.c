@@ -9,8 +9,26 @@
 #define TAM_NOME 80
 #define TAM_TABELA 40
 
-int percorreGenericoNomes(SuperReg *admRegs, RegNome *pivo, 
-  int (*funcEncontrar)(RegNome *nomeEncontrado, RegNome *pivo), int (*funcComparar)(RegNome *pivo, RegNome *iterador));
+typedef struct RegClienteStruct{
+    char nome[TAM_NOME];
+    struct RegClienteStruct *prox;
+} RegCliente;
+
+typedef struct RegRacaStruct{
+    char nome[TAM_NOME];
+    struct RegRacaStruct *prox;
+} RegRaca;
+
+int percorreGenerico(void *lista, 
+                        void *pivo, 
+                        int (*funcEncontrar)(void *iterador, void *pivo), 
+                        int (*funcComparar)(void *pivo, void *iterador), 
+                        int offSetProx);
+
+int printarRegistro(void *iterador, void *pivo);
+int inserirRegistro(void *iterador, void *pivo);
+
+int comparaCodMenorDiferente(void *pivo, void *iterador);
 
 void menuClientes();
 void printMenu(char *titulo, char **opcoes, int qtdOpcoes);
@@ -22,7 +40,7 @@ void leValidaNumero(void *numero, const char *tipoDado, const char *tituloErr,
   const char *titulo, const double faixaInicio, const double faixaFim, const void *vectorNaoRepetir,
   const int qtdPosLidas);
 void leString(char *streng, const char *titulo, const int tamMaxStreng);
-void leValidaString(char *streng, const char *tituloErr, const char *titulo,
+void leValidaString(char *streng, const char *titulo, const char *tituloErr,
  const int tamMaxStreng);
 
 int main(void){
@@ -31,6 +49,7 @@ int main(void){
     char *opcoesMenu[] = {"Menu de Clientes", 
                                     "Menu de Racas",
                                     "Sair"};
+    RegCliente *clientes = NULL;
 
     while(!sair){
         system("CLS");
@@ -41,10 +60,10 @@ int main(void){
         system("CLS");
         switch(opcao){
             case '1':
-                menuClientes();
+                menuClientes(clientes);
                 break;
             case '2':
-                printCab();
+                printCab("Racas ainda nao implementado");
                 break;
             case '3':
                 sair = 1;
@@ -61,25 +80,70 @@ int main(void){
     return 0;
 }
 
-int percorreGenericoNomes(SuperReg *admRegs, RegNome *pivo, int (*funcEncontrar)(RegNome *iterador, RegNome *pivo), int (*funcComparar)(RegNome *pivo, RegNome *iterador)){
-    RegNome *p = admRegs->inicioLista;
-    int alterado = 0, ret = 0;
+//
+int percorreGenerico(void *lista, 
+                        void *pivo, 
+                        int (*funcEncontrar)(void *iterador, void *pivo), 
+                        int (*funcComparar)(void *pivo, void *iterador), 
+                        int offSetProx){
+    void *p = lista;
+    int ret = 0;
+    int aux = 0;
     while(p != NULL){
-        int aux = funcComparar(pivo, p);
+        aux = funcComparar(pivo, p);
         if(aux){
-            alterado = f;
-            if(!uncEncontrar(p, pivo)) ret = 1;
-            p = NULL;
+            if(!funcEncontrar(p, pivo)) ret = 1;
+            else p = NULL;
         }
-        if(aux != 2) p = p->prox;
-        if(p != NULL && p->prox == NULL) admRegs->fimLista = p;
+        if(aux != 2) p = p + offSetProx;
     }
+    return ret;
+}
+
+int printarRegistro(void *iterador, void *pivo){
+    //printf("|  -> Codigo: %25d  |\n", ((RegCliente *)iterador)->cod);
+    printf("|    - Nome: %26s  |\n", ((RegCliente *)iterador)->nome);
+    printf("+----------------------------------------+\n");
+    return 1;
+}
+
+
+int inserirRegistro(void *iterador, void *pivo){
+    RegCliente *q = NULL;
+    q = (RegCliente *)(malloc(sizeof(RegCliente)));
+    if(q == NULL) return 0;
+    *q = *((RegCliente *)pivo);
+    if(iterador != NULL){
+        q->prox = ((RegCliente *)iterador)->prox;
+        ((RegCliente *)iterador)->prox = q;
+    }else{
+        q->prox = NULL;
+        iterador = (void *)q;
+    }
+    return 1;
+}
+
+// Objetivo: Retornar 1
+// Parametros: Dois registros
+int comparaVerdadeiro(void *pivo, void *iterador){
+    return 1;
+}
+
+// Objetivo: Verificar se um registro e menor que o outro e se ele e nullo
+// Parametros: Dois registros  
+int comparaCodMenorDiferente(void *pivo, void *iterador){
+    int ret = 1;
+    if(((RegCliente *)iterador) == NULL) ret = 0;
+    else if(((RegCliente *)iterador)->prox != NULL){
+    	if(!strcmp(((RegCliente *)pivo)->nome, ((RegCliente *)iterador)->nome)) return 2;
+			ret = strcmp(((RegCliente *)pivo)->nome, ((RegCliente *)iterador)->prox->nome);// && (pivo->cod != iterador->cod);
+		}
     return ret;
 }
 
 
 //
-void menuClientes(){
+void menuClientes(RegCliente *clientes){
     short int sair = 0;
     char opcao;
     char *opcoesMenu[] = {"Listar", 
@@ -97,10 +161,10 @@ void menuClientes(){
         system("CLS");
         switch(opcao){
             case '1':
-                printCab("Listar ainda nao implementado");
+                listaCliente(clientes);
                 break;
             case '2':
-                printCab("Inserir ainda nao implementado");
+                insereCliente(&clientes);
                 break;
             case '3':
                 printCab("Alterar ainda nao implementado");
@@ -165,6 +229,45 @@ void menuRacas(){
             getch();
         }
     }
+}
+
+
+//
+int listaCliente(RegCliente *listaClientes){
+    percorreGenerico(listaClientes, NULL, printarRegistro, comparaVerdadeiro, offsetof(RegCliente, prox));
+    return 0;
+}
+
+
+//
+int insereCliente(RegCliente **listaClientes){
+    RegCliente *novoCliente = NULL;
+    novoCliente = (RegCliente *)(malloc(sizeof(RegCliente)));
+    if(novoCliente != NULL){
+        leValidaString(novoCliente->nome, "Digite o nome do cliente: ", "Nome invalido!", TAM_NOME);
+        if(*listaClientes == NULL){
+            novoCliente->prox = NULL;
+            *listaClientes = novoCliente;
+            printf("(%u)\n", (*listaClientes)->prox);
+        }else{
+            RegCliente *q = NULL;
+            q = (RegCliente *)(malloc(sizeof(RegCliente)));
+            if(q != NULL){
+                q->prox = *listaClientes;
+                if(percorreGenerico(q, novoCliente, inserirRegistro, comparaCodMenorDiferente, offsetof(RegCliente, prox))){
+                    printCabInfer("Erro ao inserir");
+                    return 3;
+                }
+            }else{
+                printCabInfer("Erro de memoria");
+                return 2;
+            }
+        }
+    }else{
+        printCabInfer("Erro de memoria");
+        return 1;
+    }
+    return 0;
 }
 
 
@@ -296,7 +399,7 @@ void leString(char *streng, const char *titulo, const int tamMaxStreng){
 // Objetivo: ler e validar uma string
 // Parametros: Endereco onde sera guardada a string, endereco do titulo que ira aparecer
 //						no erro, endereco do titulo que ira aparecer e o tamanho maximo da string
-void leValidaString(char *streng, const char *tituloErr, const char *titulo,
+void leValidaString(char *streng, const char *titulo, const char *tituloErr,
  const int tamMaxStreng){
 	short int stringEstaValida, contadorLetras, apenasCInvalidos = 0;
 	stringEstaValida = 0;
