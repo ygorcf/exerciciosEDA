@@ -19,16 +19,15 @@ typedef struct RegRacaStruct{
     struct RegRacaStruct *prox;
 } RegRaca;
 
-int percorreGenerico(void *lista, 
-                        void *pivo, 
+int percorreGenericoCliente(RegCliente *lista, 
+                        RegCliente *pivo, 
                         int (*funcEncontrar)(void *iterador, void *pivo), 
-                        int (*funcComparar)(void *pivo, void *iterador), 
-                        int offSetProx);
+                        int (*funcComparar)(void *pivo, void *iterador));
 
-int printarRegistro(void *iterador, void *pivo);
-int inserirRegistro(void *iterador, void *pivo);
+int printarRegistro(RegCliente *iterador, RegCliente *pivo);
+int inserirRegistro(RegCliente *iterador, RegCliente *pivo);
 
-int comparaCodMenorDiferente(void *pivo, void *iterador);
+int comparaCodMenorDiferente(RegCliente *pivo, RegCliente *iterador);
 
 void menuClientes();
 void printMenu(char *titulo, char **opcoes, int qtdOpcoes);
@@ -81,44 +80,54 @@ int main(void){
 }
 
 //
-int percorreGenerico(void *lista, 
-                        void *pivo, 
+int percorreGenericoCliente(RegCliente *lista, 
+                        RegCliente *pivo, 
                         int (*funcEncontrar)(void *iterador, void *pivo), 
-                        int (*funcComparar)(void *pivo, void *iterador), 
-                        int offSetProx){
-    void *p = lista;
+                        int (*funcComparar)(void *pivo, void *iterador)){
+    RegCliente *p = lista;
     int ret = 0;
-    int aux = 0;
+    int aux = 0, alterado = 0;
     while(p != NULL){
-        aux = funcComparar(pivo, p);
-        if(aux){
-            if(!funcEncontrar(p, pivo)) ret = 1;
-            else p = NULL;
-        }
-        if(aux != 2) p = p + offSetProx;
+        //aux = funcComparar(pivo, p);
+        // if(aux == 1) alterado = funcEncontrar(p, pivo);
+        if(funcComparar(pivo, p)) alterado = funcEncontrar(p, pivo);
+        if(alterado){
+        //if(funcEncontrar(p, pivo)){
+		    		p = NULL;
+				}
+        else 
+        if(p->prox == NULL){
+            ret = 1;
+            p = NULL;
+        }else
+            if(aux != 2) p = p->prox;
+            else{
+                p = NULL;
+                ret = 2;
+            }
     }
     return ret;
 }
 
-int printarRegistro(void *iterador, void *pivo){
+int printarRegistro(RegCliente *iterador, RegCliente *pivo){
     //printf("|  -> Codigo: %25d  |\n", ((RegCliente *)iterador)->cod);
     printf("|    - Nome: %26s  |\n", ((RegCliente *)iterador)->nome);
     printf("+----------------------------------------+\n");
-    return 1;
+    return 0;
 }
 
 
-int inserirRegistro(void *iterador, void *pivo){
+int inserirRegistro(RegCliente *iterador, RegCliente *pivo){
     RegCliente *q = NULL;
     q = (RegCliente *)(malloc(sizeof(RegCliente)));
     if(q == NULL) return 0;
-    *q = *((RegCliente *)pivo);
+    *q = *pivo;
     if(iterador != NULL){
-        q->prox = ((RegCliente *)iterador)->prox;
-        ((RegCliente *)iterador)->prox = q;
+        q->prox = iterador->prox;
+        iterador->prox = q;
     }else{
         q->prox = NULL;
-        iterador = (void *)q;
+        iterador = q;
     }
     return 1;
 }
@@ -131,13 +140,13 @@ int comparaVerdadeiro(void *pivo, void *iterador){
 
 // Objetivo: Verificar se um registro e menor que o outro e se ele e nullo
 // Parametros: Dois registros  
-int comparaCodMenorDiferente(void *pivo, void *iterador){
+int comparaCodMenorDiferente(RegCliente *pivo, RegCliente *iterador){
     int ret = 1;
-    if(((RegCliente *)iterador) == NULL) ret = 0;
-    else if(((RegCliente *)iterador)->prox != NULL){
-    	if(!strcmp(((RegCliente *)pivo)->nome, ((RegCliente *)iterador)->nome)) return 2;
-			ret = strcmp(((RegCliente *)pivo)->nome, ((RegCliente *)iterador)->prox->nome);// && (pivo->cod != iterador->cod);
-		}
+    if(iterador == NULL) ret = 0;
+    else if(iterador->prox != NULL){
+    	if(!strcmp(pivo->nome, iterador->nome)) return 2;
+        ret = strcmp(pivo->nome, iterador->prox->nome) > 0;// && (pivo->cod != iterador->cod);
+    }
     return ret;
 }
 
@@ -234,7 +243,7 @@ void menuRacas(){
 
 //
 int listaCliente(RegCliente *listaClientes){
-    percorreGenerico(listaClientes, NULL, printarRegistro, comparaVerdadeiro, offsetof(RegCliente, prox));
+    percorreGenericoCliente(listaClientes, NULL, printarRegistro, comparaVerdadeiro);
     return 0;
 }
 
@@ -254,10 +263,10 @@ int insereCliente(RegCliente **listaClientes){
             q = (RegCliente *)(malloc(sizeof(RegCliente)));
             if(q != NULL){
                 q->prox = *listaClientes;
-                if(percorreGenerico(q, novoCliente, inserirRegistro, comparaCodMenorDiferente, offsetof(RegCliente, prox))){
+                if(percorreGenericoCliente(q, novoCliente, inserirRegistro, comparaCodMenorDiferente)){
                     printCabInfer("Erro ao inserir");
                     return 3;
-                }
+                }else *listaClientes = q->prox;
             }else{
                 printCabInfer("Erro de memoria");
                 return 2;
@@ -268,6 +277,52 @@ int insereCliente(RegCliente **listaClientes){
         return 1;
     }
     return 0;
+}
+
+
+// Objetivo: Alterar um registro da lista de nomes
+// Parametros: O endereco do endereco do inicio da lista de nomes
+int alteraCliente(RegCliente *listaClientes){
+	int ret = 0;
+    
+    if(listaClientes != NULL){
+    	SuperReg q = {NULL, 0, NULL};
+      RegNome *res = NULL;
+      RegNome pivo;
+  
+      leValidaNumero(&pivo.cod, "%d", "| Codigo invalido", "| Digite o codigo a ser alterado: ", 0, INT_MAX, NULL, 0);
+          printf("+----------------------------------------+\n");
+      
+      q.inicioLista = (RegNome *)(malloc(sizeof(RegNome)));
+      if(q.inicioLista != NULL){
+        q.inicioLista->prox = admRegs->inicioLista;
+        if(percorreGenericoNomes(&q, &pivo, descreveProxRegistro, comparaCodIguaisAdiante)){
+          printCabInfer("Nenhum registro Encontrado");
+          ret = 1;
+        }else{
+          leValidaString(pivo.nome, "Nome Invalido!", "Digite o novo nome: ", TAM_NOME);
+          printf("+----------------------------------------+\n");
+          printaNomeRegistro(&pivo, NULL);
+          printf("|        Os dados estao corretos?        |\n");
+          printCabInfer("[S] - Sim / outra tecla - para voltar");
+          fflush(stdin);
+          if(toupper(getch()) == 'S'){
+          	q.inicioLista = q.inicioLista->prox;
+            if(percorreGenericoNomes(&q, &pivo, alteraRegistroLista, comparaCodIguais)){
+      		    printCabInfer("Ocorreu um erro ao alterar");
+      		    ret = 2;
+      		  }else admRegs->inicioLista = q.inicioLista;
+          }else ret = 3;
+        }
+      }else{
+		    printCabInfer("Ocorreu um erro na memoria");
+      	ret = 4;
+      }
+    }else{
+		  printCabInfer("Ocorreu um erro na memoria");
+      ret = 5;
+    }
+    return ret;
 }
 
 
